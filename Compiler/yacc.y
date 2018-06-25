@@ -4,6 +4,115 @@
 	/* C declarations used in actions*/
 	#include <stdio.h>
 	#include <stdlib.h>
+
+	/*logical_operation_node & assignment_operation_node*/
+	typedef struct node{
+		struct node *left; 
+		struct node *right; 
+		char *token; 
+	}node; 
+
+	typedef struct if_node{
+		struct condition_node *condition; 
+		struct block_node *block; 
+		struct if_node *else_branch; /*en else pondrias condition en null & else en null, pero en if_else es lo mismo*/
+		char *token; 
+	}if_node; 
+
+	typedef struct while_node{
+		struct condition_node *condition; 
+		struct block_node *block; 
+		char *token; /* token - de que tipo de nodo es */
+	}while_node;
+
+	typedef struct for_node
+	{
+		struct assignments_node *assignments; 
+		struct condition_node *condition;
+		struct variable_operation_node *variable_operation;  
+		struct block_node *block; 
+		char *token;
+	}for_node;
+
+	typedef struct condition_node{
+		struct expression_node *expression_1; 
+		struct logical_operation_node *logical_operation;
+		struct expression_node *expression_2;
+		struct condition_node *condition; 
+		char *token; 
+	}condition_node; 
+
+	typedef struct condition_node{
+		struct expression_node *expression_1; 
+		struct logical_operation_node *logical_operation;
+		struct expression_node *expression_2;
+		struct condition_node *condition; 
+		char *token; 
+	}condition_node; 
+
+	typedef struct expression_node{
+		struct expression_node *expression_1; 
+		struct expression_node *expression_2;
+		struct function_expression_node *function_expression; 
+
+		/* no estoy muy segura que tan necesarios son estos*/
+		struct boolean_node *boolean; 
+		struct name_node *name; 
+		struct integer_node *integer; 
+		struct string_node *string; 
+		char *token; 
+		/* BOOLEAN, NAME, INTEGER, ENTRE EN DUDA -> ¿struct node* node? */
+	}expression_node; 
+		
+	typedef struct boolean_node{
+		int boolean_value;
+		char *token; 
+	}boolean_node; 
+
+	typedef struct name_node{
+		string name_value; 
+		char *token; 
+	}name_node;
+
+	typedef struct integer_node{
+		int integer_node;
+		char *token;  
+	}integer_node;
+
+	typedef struct string_node{
+		string integer_node;
+		char *token;  
+	}string_node;
+
+	typedef struct function_execute_node{
+		char*token; 
+		struct call_arguments_node *arguments; 
+	}function_execute_node;
+
+	typedef struct call_arguments_node{
+		char*token; 
+		struct call_parameters_node *parameters; 
+	}call_arguments_node;
+
+	typedef call_parameters_node{
+		char*token; 
+		struct call_parameter_node *parameters_1; 
+		struct call_parameters_node *parameters_2; 
+	}call_parameters_node;
+
+	typedef struct call_parameter_node{
+		char*token; 
+		struct string_node *string_node; 
+		struct expression_node *expression_node; 
+	} call_parameter_node; 
+
+	typedef struct return_node{
+		char*token; 
+		struct string_node *string_node; 
+		struct expression_node *expression_node; 
+	}return_node;  /* mmmm... es igual a call_parameter_node, pero no se si estaria bueno ponerlo todo junto, me parece que el return node esta bueno que este separado, por claridad*/
+
+
 %}
 
 %token SEMICOLON COLON COMMA OPEN_CURLY_BRACES CLOSE_CURLY_BRACES LESS_THAN GREATER_THAN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_BRACKET CLOSE_BRACKET
@@ -69,9 +178,9 @@ VariableOperation: Assignments {}
 Assignments: Assignment COMMA Assignments {}
 				| Assignment {}
 
-Assignment: NAME EQUAL STRING {$1 = $3;}
-				| NAME EQUAL Queue {$1 = $3;}
-				| NAME EQUAL Stack {$1 = $3;}
+Assignment: NAME EQUAL STRING {}
+				| NAME EQUAL Queue {}
+				| NAME EQUAL Stack {}
 				| NAME AssignmentOperation Expression {}
 
 Queue: OPEN_BRACKET ElementList CLOSE_BRACKET {}
@@ -89,43 +198,35 @@ Element: BOOLEAN {}
 				| INTEGER {}
 				| NAME {}
 
-AssignmentOperation: PLUS EQUAL {;}
- 				| EQUAL {;}
-				| MINUS EQUAL {;}
-				| DIVIDE EQUAL {;}
-				| MULTIPLY EQUAL {;}
+AssignmentOperation: PLUS EQUAL {}
+ 				| EQUAL {}
+				| MINUS EQUAL {}
+				| DIVIDE EQUAL {}
+				| MULTIPLY EQUAL {}
 
-LogicalOperation: AND {;}
-				| OR {;}
-				| NOT_EQUAL {;}
-				| EQUAL EQUAL {;}
-				| GREATER_OR_EQUAL {;}
-				| GREATER_THAN {;}
-				| LESS_OR_EQUAL {;}
-				| LESS_THAN {;}
+LogicalOperation: AND {}
+				| OR {}
+				| NOT_EQUAL {}
+				| EQUAL EQUAL {}
+				| GREATER_OR_EQUAL {}
+				| GREATER_THAN {}
+				| LESS_OR_EQUAL {}
+				| LESS_THAN {}
 
-Increment: NAME PLUS PLUS {$1++; }
+Increment: NAME PLUS PLUS {}
 
-Decrement: NAME MINUS MINUS {$1--; }
+Decrement: NAME MINUS MINUS {}
 
-Expression: BOOLEAN {$$ = $1; }
-				| NAME {$$ = $1;  }
-				| INTEGER {$$ = $1; }
+Expression: BOOLEAN {}
+				| NAME {}
+				| INTEGER {}
 				| FunctionExecute {}
 				/*| VariableOperation {}*/
-				| Expression PLUS Expression {
-											if($1 == INTEGER && $3 == INTEGER) { $$ = $1 + $3;}else if($1 == BOOLEAN && $3 == BOOLEAN){
-											$$ = $1; /*defini la suma de booleanos*/}else if($1 == NAME && $3 == NAME){
-												if($1 == STRING && $3 == STRING){}else if($1 == Queue && $3 == Queue){}else if($1 == Stack && $3 == Stack){}else{
-													printf("Error, you are trying to add two different type of elements\n");
-													return -1; 
-												}
-											}
-				}
+				| Expression PLUS Expression {}
 				| Expression MINUS Expression {} /*Para queue y array cuantos queres sacar - "Se redefine segun el tipo de dato" esto iria en {}, nos fijamos que tipo de dato estamos manejando y segun eso que es lo que hacemos ... */
-				| Expression MOD Expression {$$ = $1 % $3;}
-				| Expression DIVIDE Expression {if($3 == 0) {$$ = 0;}else {$$ = $1 / $3;}}
-				| Expression MULTIPLY Expression {$$ = $1 * $3; }
+				| Expression MOD Expression {}
+				| Expression DIVIDE Expression {}
+				| Expression MULTIPLY Expression {}
 
 For: FOR OPEN_PARENTHESES Assignments SEMICOLON Condition SEMICOLON VariableOperation CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
 				| FOR OPEN_PARENTHESES NAME COLON  CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
@@ -157,3 +258,5 @@ Return: RETURN Expression {}
 			| RETURN STRING {}
 
 %%
+
+

@@ -1,231 +1,159 @@
+#ifndef NODES_H
+#define NODES_H
+
 enum productions
 {
-	Program=1, Defines, Define, Functions, Function, Main, Arguments, Parameters, Block, 
-	Sentences, Sentence, SentenceEnd, VariableOperation, Assignments, Assignment, Queue,
-	Stack, ElementList, Elements, Element, AssignmentOperation, LogicalOperation, Increment, 
-	Decrement, Expression, For, Condtion, While, If, Else, FunctionExecute, CallArguments, 
-	CallParameters, CallParameter, Return
+	DEFINE_INTEGER, DEFINE_STRING, SENTENCE_VARIABLE, SENTENCE_FOR, SENTENCE_WHILE, SENTENCE_IF, SENTENCE_FUNCTION, SENTENCE_RETURN,
+	VARIABLE_ASSIGNMENT, VARIABLE_INCREMENT, VARIABLE_DECREMENT, ASSIGNMENT_STRING, ASSIGNMENT_QUEUE, ASSIGNMENT_STACK, ASSIGNMENT_EXPRESSION,
+	ELEMENT_BOOLEAN, ELEMENT_STRING, ELEMENT_VARIABLE, ELEMENT_INTEGER, FOR_EACH, REGULAR_FOR, CONDITION_LOGICAL, CONDITION_EXPRESSION, CONDITION_PARENTHESES,
+	EXPRESSION_BOOLEAN, EXPRESSION_VARIABLE, EXPRESSION_INTEGER, EXPRESSION_FUNCTION, EXPRESSION_OPERATION, PARAMERER_STRING, PARAMETER_EXPRESSION,
+	RETURN_STRING, RETURN_EXPRESSION
 };
 
-/* los puse en char -> logical_operation_node & assignment_operation_node. O usamos el node ? */
-	typedef struct node{
-		struct node *left; 
-		struct node *right; 
-		int token; 
-	}node; 
-
 	typedef struct program_node{
-		int token; 
-		struct defines_node *defines_node; 
-		struct functions_node *functions_node; 
-	}program_node;
+		struct defines_node * defines;
+		struct functions_node * functions;
+	} program_node;
 
 	typedef struct defines_node{
-		int token; 
-		struct defines_node *defines_node; 
-		struct define_node *define_node; 
-	}defines_node; 
+		struct define_node * define;
+		struct defines_node * next;
+	} defines_node;
 
 	typedef struct define_node{
-		int token; 
-		char*numeral; 
-		char*define; 
-		char*name; 
-		char*string; 
-		int*boolean_number; 
-	}define_node; 
+		enum productions production;
+		char* name;
+		char* string_name;
+		int value;
+	} define_node;
 
 	typedef struct functions_node{
-		int token; 
-		struct fucntion_node * fucntion_node; 
-		struct functions_node * functions_node; 
-		struct main_node * main_node; 
-	}functions_node; 
+		struct function_node * function;
+		struct functions_node * next;
+	} functions_node;
 
 	typedef struct function_node{
-		int token; 
-		struct arguments_node *arguments_node; 
-		struct block_node *block_node; 
-	}function_node;
+		struct parameters_node * parameters;
+		struct sentences_node * sentences;
+		char * name;
+	} function_node;
 
-	typedef struct main_node{
-		int token;
-		struct arguments_node *arguments_node; 
-		struct block_node *block_node; 
-	}
+	typedef struct parameters_node {
+		struct parameters_node * next;
+		char* name; /*NAME*/
+	} parameters_node;
 
-	typedef struct arguments_node{
-		int token; 
-		struct parameters_node *parameters_node; 
-	}arguments_node; 
-
-	typedef struct parameters_node{
-		int token; 
-		struct parameters_node *parameters_node; 
-		char* name; /*NAME*/ 
-	};
-
-	typedef struct block_node{
-		int token; 
-		struct sentences_node *sentences_node; 
-	}block_node;
-
-	typedef struct sentences_node{
-		int token; 
-		struct sentence_node *sentence_node; 
-		struct sentences_node *sentences_node; 
-	}sentences_node; 
+	typedef struct sentences_node {
+		struct sentence_node * sentence_node;
+		struct sentences_node * sentences_node;
+	}sentences_node;
 
 	typedef struct sentence_node{
-		int token; 
-		struct variable_opration_node *variable_opration_node; 
-		struct senetence_end_node *senetence_end_node; 
-		struct for_node *for_node; 
-		struct while_node *while_node; 
-		struct if_node *if_node; 
-		struct function_execute_node* function_execute_node; 
-		struct return_node*return_node; 
+		enum productions production;
+		struct variable_opration_node *variable_opration_node;
+		struct for_node *for_node;
+		struct while_node *while_node;
+		struct if_node *if_node;
+		struct function_execute_node* function_execute_node;
+		struct return_node*return_node;
+		char sentenceEnd; //Si es ; o nada.
 	}sentence_node;
 
-	/*lo termine agregando por cuestion de prolijidad*/
-	typedef struct sentence_end_node{
-		int token; 
-		char semicolon; 
-	}sentence_end_node; 
-
 	typedef struct variable_opration_node{
-		int token; 
-		struct assignments_node *assignments_node; 
-		struct increment_node * increment_node; 
-		struct decrement_node * decrement_node; 
-	}variable_opration_node; 
+		enum productions production;
+		struct assignments_node *assignments_node;
+		char * increment_decrement_name;
+	}variable_opration_node;
 
 	typedef struct assignments_node{
-		int token; 
-		struct assignment_node *assignment_node; 
-		struct assignments_node *assignments_node; 
-	}assignments_node; 
+		struct assignment_node *assignment_node;
+		struct assignments_node *assignments_node;
+	}assignments_node;
 
 	typedef struct assignment_node{
-		int token; 
-		char*name;
-		char*string; 
-		struct queue_node *queue_node; 
-		struct stack_node *stack_node; 
-		char assignment_operation; 
-		struct expression_node *expression_node; 
-	}assignment_node; 
+		enum productions production;
+		char* name;
+		char* string;
+		struct queue_stack_node * queue_stack;
+		char* assignment_operation;
+		struct expression_node *expression_node;
+	}assignment_node;
 
 	typedef struct queue_stack_node{
-		int token; 
-		struct element_list_node *element_list_node; 
-	}queue_stack_node; 
-
-	typedef struct element_list_node{
-		int token; 
-		struct elements_node *elements_node; 
-	}element_list_node;
+		struct elements_node * elements;
+	}queue_stack_node;
 
 	typedef struct elements_node{
-		int token; 
-		struct element_node *element_node;
-		char comma;  
-		struct elements_node *elements_node; 
-	}elements_node; 
+		struct element_node * element;
+		struct elements_node * next;
+	}elements_node;
 
-	/*repito lo pongo solo por prolijidad, podriamos directamente poner la info en elements_node*/
 	typedef struct element_node{
-		int token; 
-		char *string_name; /*BOOLEAN, STRING, INTEGER, NAME*/
-		integer *boolean_number; 
-	}element_node; 
+		enum productions production;
+		char * string_name;
+		int value;
+	}element_node;
 
 	typedef struct if_node{
-		int token; 
-		struct condition_node *condition; 
-		struct block_node *block; 
+		struct condition_node *condition;
+		struct sentences_node *sentences;
 		struct if_node *else_branch; /*en else pondrias condition en null & else en null, pero en if_else es lo mismo*/
-	}if_node; 
+	}if_node;
 
 	typedef struct while_node{
-		int token; 
-		struct condition_node *condition_node; 
-		struct block_node *block_node; 
+		struct condition_node *condition;
+		struct sentences_node *sentences;
 	}while_node;
 
-	typedef struct for_node
-	{
-		int token; 
-		struct assignments_node *assignments_node; 
+	typedef struct for_node	{
+		enum productions production;
+		struct assignments_node *assignments_node;
 		struct condition_node *condition_node;
-		struct variable_operation_node *variable_operation_node;  
-		struct block_node *block_node; 
+		struct variable_operation_node *variable_operation_node;
+		struct sentences_node *sentences;
+		char * variable;
+		char * structure;
 	}for_node;
 
 	typedef struct condition_node{
-		int token; 
-		struct expression_node *expression_1; 
-		char *logical_operation;
+		enum productions production;
+		struct expression_node *expression_1;
+		char * logical_operation;
 		struct expression_node *expression_2;
-		struct condition_node *condition_node; 
-	}condition_node; 
+		struct condition_node *condition_node;
+	}condition_node;
 
 	typedef struct expression_node{
-		int token; 
-		struct expression_node *expression_1; 
-		char op; 
+		enum productions production;
+		struct expression_node *expression_1;
+		char op;
 		struct expression_node *expression_2;
-		struct function_expression_node *function_expression_node; 
+		struct function_execute_node *function_execute_node;
 
-		int boolean_number; 
-		char * string_name;  
-		/* BOOLEAN, NAME, INTEGER, ENTRE EN DUDA -> ¿struct node* node? */
-	}expression_node; 
-		
-	typedef struct boolean_node{
-		int token; 
-		int boolean_value;
-	}boolean_node; 
-
-	typedef struct name_node{
-		int token; 
-		char* name_value; 
-	}name_node;
-
-	typedef struct integer_node{
-		int token; 
-		int integer_node; 
-	}integer_node;
-
-	typedef struct string_node{
-		int token; 
-		char* integer_node; 
-	}string_node;
+		int boolean_number;
+		char * name;
+	}expression_node;
 
 	typedef struct function_execute_node{
-		int token; 
-		struct call_arguments_node *call_arguments_node; 
+		char * name;
+		struct call_parameters_node * parameters;
 	}function_execute_node;
 
-	typedef struct call_arguments_node{
-		int token; 
-		struct call_parameters_node *call_parameters_node; 
-	}call_arguments_node;
-
-	typedef call_parameters_node{
-		int token; 
-		struct call_parameter_node *parameters_1; 
-		struct call_parameters_node *parameters_2; 
-	}call_parameters_node;
+	typedef struct call_parameters_node{
+		struct call_parameter_node * parameter;
+		struct call_parameters_node * next;
+	} call_parameters_node;
 
 	typedef struct call_parameter_node{
-		int token; 
-		char* string; 
-		struct expression_node *expression_node; 
-	} call_parameter_node; 
+		enum productions production;
+		char* string;
+		struct expression_node *expression_node;
+	} call_parameter_node;
 
-	typedef struct return_node{
-		int token; 
-		struct string_node *string_node; 
-		struct expression_node *expression_node; 
-	}return_node;  /* mmmm... es igual a call_parameter_node, pero no se si estaria bueno ponerlo todo junto, me parece que el return node esta bueno que este separado, por claridad*/
+	typedef struct return_node {
+		enum productions production;
+		char* string;
+		struct expression_node *expression_node;
+	} return_node;
+
+#endif

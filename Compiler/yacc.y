@@ -25,100 +25,101 @@
 /* Descriptions of expected inputs corresponding actions (in C)*/
 %%
 
-Program: Defines Functions  {}
+Program: Defines Functions  {$$ = new_program_node(1, $1, $2); }
 
-Defines: Define Defines  {}
-        | Define {}
+Defines: Define Defines  { $$ = new_defines_node(2, $1, $2); }
+        | Define {$$ = new_defines_node(2, NULL, $1); }
 
-Define: NUMERAL DEFINE NAME BOOLEAN {}
-        | NUMERAL DEFINE NAME INTEGER {}
-        | NUMERAL DEFINE NAME STRING {}
+Define: NUMERAL DEFINE NAME BOOLEAN { $$ = new_define_node(3, $1, $2, $3, NULL, $4); }
+        | NUMERAL DEFINE NAME INTEGER {$$ = new_define_node(3, $1, $2, $3, NULL, $4); }
+        | NUMERAL DEFINE NAME STRING {$$ = new_define_node(3, $1, $2, $3, $4, NULL); } /*medio feo solo para chequear constantes, no?*/
 
-Functions: Function Functions {}
-        | Main {}
+Functions: Function Functions {$$ = new_functions_node(4, $1, $2, NULL); }
+        | Main {$$ = new_functions_node(4, NULL, NULL, $1); }
 
-Function: NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
+Function: NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node(5, $3, $6); }
 
-Main: MAIN OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
+Main: MAIN OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_main_node(6, $3, $6); }
 
-Arguments: /* empty */	{}
-				|	Parameters	{}
+Arguments: /* empty */	{$$ = new_arguemnts_node(7, NULL); }
+				|	Parameters	{$$ = new_arguemnts_node(7, $1); }
 
-Parameters: NAME {}
-				| NAME COMMA Parameters {}
+Parameters: NAME {$$ = new_parameters_node(8, NULL, $1); }
+				| NAME COMMA Parameters {$$ = new_parameters_node(8, $3, $1); }
 
-Block: /* empty */ {}
-				| Sentences {}
+Block: /* empty */ {$$ = new_block_node(9, NULL); }
+				| Sentences {$$ = new_block_node(9, $1);}
 
-Sentences: Sentence {}
-				| Sentence Sentences {}
+Sentences: Sentence {$$ = new_sentences_node(10, $1, NULL); }
+				| Sentence Sentences {$$ = new_sentences_node(10, $1, $2); }
 
-Sentence: VariableOperation SentenceEnd {}
-				| For {}
-				| While {}
-				| If {}
-				| FunctionExecute {}
-				| Return {}
+Sentence: VariableOperation SentenceEnd { $$ = new_sentence_node(11, $1, $2, NULL, NULL, NULL, NULL, NULL); }
+				| For {$$ = new_sentence_node(11, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
+				| While {$$ = new_sentence_node(11, NULL, NULL, NULL, $1, NULL, NULL, NULL); }
+				| If {$$ = new_sentence_node(11, NULL, NULL, NULL, NULL, $1, NULL, NULL); }
+				| FunctionExecute {$$ = new_sentence_node(11, NULL, NULL, NULL, NULL, NULL, $1, NULL); }
+				| Return {$$ = new_sentence_node(11, NULL, NULL, NULL, NULL, NULL, NULL, $1); }
 
-SentenceEnd: /* empty */ {}
-				| SEMICOLON {}
+SentenceEnd: /* empty */ {$$ = new_sentence_end_node(12, NULL); }
+				| SEMICOLON {$$ = new_sentence_end_node(12, $1); }
 
-VariableOperation: Assignments {}
-				| Increment {}
-				| Decrement {}
+VariableOperation: Assignments {$$ = new_variable_operation_node(13, $1, NULL, NULL); }
+				| Increment {$$ = new_variable_operation_node(13, NULL, $1, NULL);}
+				| Decrement {$$ = new_variable_operation_node(13, NULL, NULL, $1);}
 
-Assignments: Assignment COMMA Assignments {}
-				| Assignment {}
+Assignments: Assignment COMMA Assignments {$$ = new_assignments_node(14, $1, $3); }
+				| Assignment {$$ = new_assignments_node(14, $1, NULL); }
 
-Assignment: NAME EQUAL STRING {}
-				| NAME EQUAL Queue {}
-				| NAME EQUAL Stack {}
-				| NAME AssignmentOperation Expression {}
+Assignment: NAME EQUAL STRING {$$ = new_assignment_node(15, $1, $3, NULL, NULL, NULL, NULL); }
+				| NAME EQUAL Queue {$$ = new_assignment_node(15, $1, NULL, $3, NULL, NULL, NULL); }
+				| NAME EQUAL Stack {$$ = new_assignment_node(15, $1, NULL, NULL, $3, NULL, NULL); }
+				| NAME AssignmentOperation Expression {$$ = new_assignment_node(15, $1, NULL, NULL, NULL, $2, $3);}
 
-Queue: OPEN_BRACKET ElementList CLOSE_BRACKET {}
+Queue: OPEN_BRACKET ElementList CLOSE_BRACKET {$$ = new_queue_stack_node(16, $2); }
 
-Stack: LESS_THAN ElementList GREATER_THAN {}
+Stack: LESS_THAN ElementList GREATER_THAN {$$ = new_queue_stack_node(17, $2); }
 
-ElementList: /* empty */ {}
-				| Elements {}
+ElementList: /* empty */ {$$ = new_element_list_node(18, NULL); }
+				| Elements {$$ = new_element_list_node(18, $1); }
 
-Elements: Element COMMA Elements {}
-				| Element {}
+Elements: Element COMMA Elements {$$ = new_elements_node(19, $1, $2, $3); }
+				| Element {$$ = new_elements_node(19, $1, NULL, NULL); }
 
-Element: BOOLEAN {}
-				| STRING {}
-				| INTEGER {}
-				| NAME {}
+Element: BOOLEAN {$$ = new_element_node(20, NULL, $1); }
+				| STRING {$$ = new_element_node(20, $1, NULL);}
+				| INTEGER {$$ = new_element_node(20, $1, NULL);}
+				| NAME {$$ = new_element_node(20, NULL, $1);}
 
-AssignmentOperation: PLUS EQUAL {}
- 				| EQUAL {}
-				| MINUS EQUAL {}
-				| DIVIDE EQUAL {}
-				| MULTIPLY EQUAL {}
+/*No estoy segggura de que esto sea asi, entre un poco en duda*/
+AssignmentOperation: PLUS EQUAL {$$ = '+='; }
+ 				| EQUAL {$$ = '='; }
+				| MINUS EQUAL {$$ = '-='; }
+				| DIVIDE EQUAL {$$ = '/='}
+				| MULTIPLY EQUAL {$$ = '*='}
 
-LogicalOperation: AND {}
-				| OR {}
-				| NOT_EQUAL {}
-				| EQUAL EQUAL {}
-				| GREATER_OR_EQUAL {}
-				| GREATER_THAN {}
-				| LESS_OR_EQUAL {}
-				| LESS_THAN {}
+LogicalOperation: AND {$$ = '&&'}
+				| OR {$$ = '||'}
+				| NOT_EQUAL {$$ = '!='}
+				| EQUAL EQUAL {$$ = '=='}
+				| GREATER_OR_EQUAL {$$ = '>='}
+				| GREATER_THAN {$$ = '>'}
+				| LESS_OR_EQUAL {$$ = '<='}
+				| LESS_THAN {$$ = '<'}
 
 Increment: NAME PLUS PLUS {}
 
 Decrement: NAME MINUS MINUS {}
 
-Expression: BOOLEAN {}
-				| NAME {}
-				| INTEGER {}
-				| FunctionExecute {}
+Expression: BOOLEAN {$$ = new_expression_node(25, NULL, NULL, NULL, NULL, $1, NULL); }
+				| NAME {$$ = new_expression_node(25, NULL, NULL,  NULL, NULL, NULL, $1); }
+				| INTEGER {$$ = new_expression_node(25, NULL, NULL, NULL, NULL, $1, NULL);}
+				| FunctionExecute { $$ = new_expression_node(25, NULL, NULL, NULL, $1, NULL, NULL); }
 				/*| VariableOperation {}*/
-				| Expression PLUS Expression {}
-				| Expression MINUS Expression {} /*Para queue y array cuantos queres sacar - "Se redefine segun el tipo de dato" esto iria en {}, nos fijamos que tipo de dato estamos manejando y segun eso que es lo que hacemos ... */
-				| Expression MOD Expression {}
-				| Expression DIVIDE Expression {}
-				| Expression MULTIPLY Expression {}
+				| Expression PLUS Expression {$$ = new_expression_node(25, $1, '+', $3, NULL, NULL, NULL);}
+				| Expression MINUS Expression {$$ = new_expression_node(25, $1, '-', $3, NULL, NULL, NULL);} /*Para queue y array cuantos queres sacar - "Se redefine segun el tipo de dato" esto iria en {}, nos fijamos que tipo de dato estamos manejando y segun eso que es lo que hacemos ... */
+				| Expression MOD Expression {$$ = new_expression_node(25, $1, '%', $3, NULL, NULL, NULL);}
+				| Expression DIVIDE Expression {$$ = new_expression_node(25, $1, '/', $3, NULL, NULL, NULL);}
+				| Expression MULTIPLY Expression {$$ = new_expression_node(25, $1, '*', $3, NULL, NULL, NULL);}
 
 For: FOR OPEN_PARENTHESES Assignments SEMICOLON Condition SEMICOLON VariableOperation CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
 				| FOR OPEN_PARENTHESES NAME COLON  CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}

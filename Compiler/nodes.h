@@ -1,6 +1,6 @@
 enum productions
 {
-	Program, Defines, Define, Functions, Function, Main, Arguments, Parameters, Block, 
+	Program=1, Defines, Define, Functions, Function, Main, Arguments, Parameters, Block, 
 	Sentences, Sentence, SentenceEnd, VariableOperation, Assignments, Assignment, Queue,
 	Stack, ElementList, Elements, Element, AssignmentOperation, LogicalOperation, Increment, 
 	Decrement, Expression, For, Condtion, While, If, Else, FunctionExecute, CallArguments, 
@@ -26,10 +26,19 @@ enum productions
 		struct define_node *define_node; 
 	}defines_node; 
 
+	typedef struct define_node{
+		int token; 
+		char*numeral; 
+		char*define; 
+		char*name; 
+		char*string; 
+		int*boolean_number; 
+	}define_node; 
+
 	typedef struct functions_node{
 		int token; 
-		struct functions_node * functions_node; 
 		struct fucntion_node * fucntion_node; 
+		struct functions_node * functions_node; 
 		struct main_node * main_node; 
 	}functions_node; 
 
@@ -38,6 +47,12 @@ enum productions
 		struct arguments_node *arguments_node; 
 		struct block_node *block_node; 
 	}function_node;
+
+	typedef struct main_node{
+		int token;
+		struct arguments_node *arguments_node; 
+		struct block_node *block_node; 
+	}
 
 	typedef struct arguments_node{
 		int token; 
@@ -113,17 +128,17 @@ enum productions
 
 	typedef struct elements_node{
 		int token; 
-		struct element_node *element_node; 
+		struct element_node *element_node;
+		char comma;  
 		struct elements_node *elements_node; 
 	}elements_node; 
 
 	/*repito lo pongo solo por prolijidad, podriamos directamente poner la info en elements_node*/
 	typedef struct element_node{
 		int token; 
-		char *element; /*BOOLEAN, STRING, INTEGER, NAME*/
+		char *string_name; /*BOOLEAN, STRING, INTEGER, NAME*/
+		integer *boolean_number; 
 	}element_node; 
-
-
 
 	typedef struct if_node{
 		int token; 
@@ -166,14 +181,12 @@ enum productions
 	typedef struct expression_node{
 		int token; 
 		struct expression_node *expression_1; 
+		char op; 
 		struct expression_node *expression_2;
 		struct function_expression_node *function_expression_node; 
 
-		/* no estoy muy segura que tan necesarios son estos*/
-		struct boolean_node *boolean_node; 
-		struct name_node *name_node; 
-		struct integer_node *integer_node; 
-		struct string_node *string_node; 
+		int boolean_number; 
+		char * string_name;  
 		/* BOOLEAN, NAME, INTEGER, ENTRE EN DUDA -> ¿struct node* node? */
 	}expression_node; 
 		

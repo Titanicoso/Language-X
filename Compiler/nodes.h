@@ -61,14 +61,9 @@ enum productions
 
 	typedef struct variable_opration_node{
 		enum productions production;
-		struct assignments_node *assignments_node;
+		struct assignment_node *assignment_node;
 		char * increment_decrement_name;
 	}variable_opration_node;
-
-	typedef struct assignments_node{
-		struct assignment_node *assignment_node;
-		struct assignments_node *assignments_node;
-	}assignments_node;
 
 	typedef struct assignment_node{
 		enum productions production;
@@ -107,7 +102,7 @@ enum productions
 
 	typedef struct for_node	{
 		enum productions production;
-		struct assignments_node *assignments_node;
+		struct assignment_node *assignment_node;
 		struct condition_node *condition_node;
 		struct variable_operation_node *variable_operation_node;
 		struct sentences_node *sentences;

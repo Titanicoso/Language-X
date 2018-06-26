@@ -20,7 +20,6 @@
 	sentences_node* sentences_node;
 	sentence_node* sentence_node;
 	variable_opration_node* variable_opration_node;
-	assignments_node* assignments_node;
 	assignment_node* assignment_node;
 	queue_stack_node* queue_stack_node;
 	elements_node* elements_node;
@@ -56,7 +55,6 @@
 %type <sentence_node> Sentence
 %type <text> SentenceEnd AssignmentOperation LogicalOperation Increment Decrement
 %type <variable_opration_node> VariableOperation
-%type <assignments_node> Assignments
 %type <assignment_node> Assignment
 %type <queue_stack_node> Queue Stack
 %type <elements_node> ElementList Elements
@@ -119,12 +117,9 @@ Sentence: VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIAB
 SentenceEnd: /* empty */ {$$ = NULL; }
 				| SEMICOLON {$$ = ";";}
 
-VariableOperation: Assignments {$$ = new_variable_operation_node(VARIABLE_ASSIGNMENT, $1, NULL); }
+VariableOperation: Assignment {$$ = new_variable_operation_node(VARIABLE_ASSIGNMENT, $1, NULL); }
 				| Increment {$$ = new_variable_operation_node(VARIABLE_INCREMENT, NULL, $1);}
 				| Decrement {$$ = new_variable_operation_node(VARIABLE_DECREMENT, NULL, $1);}
-
-Assignments: Assignment COMMA Assignments {$$ = new_assignments_node($1, $3); }
-				| Assignment {$$ = new_assignments_node($1, NULL); }
 
 Assignment: NAME EQUAL STRING {$$ = new_assignment_node(ASSIGNMENT_STRING, $1, $3, NULL, NULL, NULL); }
 				| NAME EQUAL Queue {$$ = new_assignment_node(ASSIGNMENT_QUEUE, $1, NULL, $3, NULL, NULL); }
@@ -175,7 +170,7 @@ Expression: BOOLEAN {$$ = new_expression_node(EXPRESSION_BOOLEAN, NULL, NULL, NU
 				| Expression DIVIDE Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '/', $3, NULL, NULL, NULL);}
 				| Expression MULTIPLY Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '*', $3, NULL, NULL, NULL);}
 
-For: FOR OPEN_PARENTHESES Assignments SEMICOLON Condition SEMICOLON VariableOperation CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(REGULAR_FOR, $3, $5, $7, $10, NULL, NULL); }
+For: FOR OPEN_PARENTHESES Assignment SEMICOLON Condition SEMICOLON VariableOperation CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(REGULAR_FOR, $3, $5, $7, $10, NULL, NULL); }
 				| FOR OPEN_PARENTHESES NAME COLON NAME CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(FOR_EACH, NULL, NULL, NULL, $8, $3, $5);}
 
 Condition: Expression LogicalOperation Expression {$$ = new_condition_node(CONDITION_LOGICAL, $1, $2, $3, NULL); }

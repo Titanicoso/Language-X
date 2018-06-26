@@ -121,34 +121,34 @@ Expression: BOOLEAN {$$ = new_expression_node(25, NULL, NULL, NULL, NULL, $1, NU
 				| Expression DIVIDE Expression {$$ = new_expression_node(25, $1, '/', $3, NULL, NULL, NULL);}
 				| Expression MULTIPLY Expression {$$ = new_expression_node(25, $1, '*', $3, NULL, NULL, NULL);}
 
-For: FOR OPEN_PARENTHESES Assignments SEMICOLON Condition SEMICOLON VariableOperation CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
-				| FOR OPEN_PARENTHESES NAME COLON  CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
+For: FOR OPEN_PARENTHESES Assignments SEMICOLON Condition SEMICOLON VariableOperation CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(26, $3, $5, $7, $10); }
+				| FOR OPEN_PARENTHESES NAME COLON  CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(26, NULL, NULL, NULL, $7); }
 
-Condition: Expression LogicalOperation Expression {}
-				| Expression {}
-				| OPEN_PARENTHESES Condition CLOSE_PARENTHESES {}
+Condition: Expression LogicalOperation Expression {$$ = new_condition_node(27, $1, $2, $3, NULL); }
+				| Expression {$$ = new_condition_node(27, $1, NULL, NULL, NULL);}
+				| OPEN_PARENTHESES Condition CLOSE_PARENTHESES {$$ = new_condition_node(27, NULL, NULL, NULL, $2); }
 
-While: WHILE OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
+While: WHILE OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_while_node(28, $3, $6); }
 
-If: IF OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES Else {}
+If: IF OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES Else {$$ = new_if_node(29, $3, $6, $8); }
 
-Else: ELSE OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{}
-				| ELSE_IF OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES Else {}
-				| /* empty */
+Else: ELSE OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_if_node(30, NULL, $3, NULL); }
+				| ELSE_IF OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES Else {$$ = new_if_node(30, $3, $6, $8); }
+				| /* empty */{$$ = new_if_node(30, NULL, NULL, NULL); }
 
-FunctionExecute: NAME OPEN_PARENTHESES CallArguments CLOSE_PARENTHESES {}
+FunctionExecute: NAME OPEN_PARENTHESES CallArguments CLOSE_PARENTHESES {$$ = new_function_execute_node(31, $3); }
 
-CallArguments: /* empty */	{}
-				|	CallParameters	{}
+CallArguments: /* empty */	{$$ = new_call_arguments_node(32, NULL); }
+				|	CallParameters	{$$ = new_call_arguments_node(32, $1); }
 
-CallParameters: CallParameter {}
-				| CallParameter COMMA CallParameters {}
+CallParameters: CallParameter {$$ = new_call_parameters_node(33, $1, NULL); }
+				| CallParameter COMMA CallParameters {$$ = new_call_parameters_node(33, $1, $3);}
 
-CallParameter: STRING {}
-				| Expression {}
+CallParameter: STRING {$$ = new_call_parameter_node(34, $1, NULL); }
+				| Expression {$$ = new_call_parameter_node(34, NULL, $1); }
 
-Return: RETURN Expression {}
-			| RETURN STRING {}
+Return: RETURN Expression {$$ = new_return_node(35, NULL, $1); }
+			| RETURN STRING {$$ = new_return_node(35, $2, NULL); }
 
 %%
 

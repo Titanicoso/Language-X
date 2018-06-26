@@ -170,14 +170,6 @@ enum productions
 		struct condition_node *condition_node; 
 	}condition_node; 
 
-	typedef struct condition_node{
-		int token; 
-		struct expression_node *expression_1; 
-		char *logical_operation;
-		struct expression_node *expression_2;
-		struct condition_node *condition_node; 
-	}condition_node; 
-
 	typedef struct expression_node{
 		int token; 
 		struct expression_node *expression_1; 
@@ -228,7 +220,7 @@ enum productions
 
 	typedef struct call_parameter_node{
 		int token; 
-		struct string_node *string_node; 
+		char* string; 
 		struct expression_node *expression_node; 
 	} call_parameter_node; 
 

@@ -4,7 +4,7 @@
 <Define> ::= "#" "define" <Name> (<Integer> | <String> | <Boolean>)
 
 <Boolean> ::= "true" | "false"
-<Integer> ::= ["-"] <Digit> {<Digit>}
+<Integer> ::= <Digit> {<Digit>}
 <Name> ::= <Alpha> {<AlphaNumeric>}
 <String> ::= '"' {<StringCharacters>} '"'
 

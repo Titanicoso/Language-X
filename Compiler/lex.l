@@ -46,13 +46,7 @@
 "true"   {yylval = 1; return BOOLEAN;}
 "false"  {yylval = 0; return BOOLEAN;}
 
--?[0-9]+						{if(yytext[0] == '-') {
-                      yylval = -1;
-                      yytext = yytext + 1;
-                    } else {
-                      yylval = 1;
-                    }
-                    yylval *= atoi(yytext);
+[0-9]+						{yylval *= atoi(yytext);
 								    return INTEGER;}
 
 [a-zA-Z]([a-zA-Z0-9_])*		{yylval = malloc(yyleng + 1);

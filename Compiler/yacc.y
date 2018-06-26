@@ -7,14 +7,70 @@
 	#include "nodes.h"
 %}
 
+%union {
+	char * text;
+	int value;
+
+	program_node* program_node;
+	defines_node* defines_node;
+	define_node* define_node;
+	functions_node* functions_node;
+	function_node* function_node;
+	parameters_node* parameters_node;
+	sentences_node* sentences_node;
+	sentence_node* sentence_node;
+	variable_opration_node* variable_opration_node;
+	assignments_node* assignments_node;
+	assignment_node* assignment_node;
+	queue_stack_node* queue_stack_node;
+	elements_node* elements_node;
+	element_node* element_node;
+	if_node* if_node;
+	while_node* while_node;
+	for_node* for_node;
+	condition_node* condition_node;
+	expression_node* expression_node;
+	function_execute_node* function_execute_node;
+	call_parameters_node* call_parameters_node;
+	call_parameter_node* call_parameter_node;
+	return_node* return_node;
+}
+
+
 %token SEMICOLON COLON COMMA OPEN_CURLY_BRACES CLOSE_CURLY_BRACES LESS_THAN GREATER_THAN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_BRACKET CLOSE_BRACKET
 %token PLUS MINUS MULTIPLY DIVIDE MOD EQUAL NUMERAL NOT_EQUAL GREATER_OR_EQUAL LESS_OR_EQUAL AND OR
 %token RETURN DEFINE FOR WHILE IF ELSE ELSE_IF MAIN
 
-%token BOOLEAN
-%token INTEGER
-%token NAME
-%token STRING
+%token <value> BOOLEAN
+%token <value> INTEGER
+%token <text> NAME
+%token <text> STRING
+
+%type <program_node> Program
+%type <defines_node> Defines
+%type <define_node> Define
+%type <functions_node> Functions
+%type <function_node> Function Main
+%type <parameters_node> Arguments Parameters
+%type <sentences_node> Block Sentences
+%type <sentence_node> Sentence
+%type <text> SentenceEnd AssignmentOperation LogicalOperation Increment Decrement
+%type <variable_opration_node> VariableOperation
+%type <assignments_node> Assignments
+%type <assignment_node> Assignment
+%type <queue_stack_node> Queue Stack
+%type <elements_node> ElementList Elements
+%type <element_node> Element
+%type <if_node> If Else
+%type <while_node> While
+%type <for_node> For
+%type <condition_node> Condition
+%type <expression_node> Expression
+%type <function_execute_node> FunctionExecute
+%type <call_parameters_node> CallArguments CallParameters
+%type <call_parameter_node> CallParameter
+%type <return_node> Return
+
 
 %start Program
 
@@ -60,8 +116,8 @@ Sentence: VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIAB
 				| FunctionExecute SentenceEnd {$$ = new_sentence_node(SENTENCE_FUNCTION, NULL, $2, NULL, NULL, NULL, $1, NULL); }
 				| Return SentenceEnd {$$ = new_sentence_node(SENTENCE_RETURN, NULL, $2, NULL, NULL, NULL, NULL, $1); }
 
-SentenceEnd: /* empty */ {$$ = '\0'; }
-				| SEMICOLON {$$ = ';';}
+SentenceEnd: /* empty */ {$$ = NULL; }
+				| SEMICOLON {$$ = ";";}
 
 VariableOperation: Assignments {$$ = new_variable_operation_node(VARIABLE_ASSIGNMENT, $1, NULL); }
 				| Increment {$$ = new_variable_operation_node(VARIABLE_INCREMENT, NULL, $1);}

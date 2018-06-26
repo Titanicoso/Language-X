@@ -43,18 +43,18 @@
 
 "main"  {return MAIN;}
 
-"true"   {yylval = 1; return BOOLEAN;}
-"false"  {yylval = 0; return BOOLEAN;}
+"true"   {yylval.value = 1; return BOOLEAN;}
+"false"  {yylval.value = 0; return BOOLEAN;}
 
-[0-9]+						{yylval *= atoi(yytext);
+[0-9]+						{yylval.value = atoi(yytext);
 								    return INTEGER;}
 
-[a-zA-Z]([a-zA-Z0-9_])*		{yylval = malloc(yyleng + 1);
+[a-zA-Z]([a-zA-Z0-9_])*		{yylval.text = malloc(yyleng + 1);
                           memcpy(yylval, yytext, yyleng);
                           yylval[yyleng] = '\0';
 								          return NAME;}
 
-\"[^\"]*\"					{yylval = malloc(yyleng + 1);
+\"[^\"]*\"					{yylval.text = malloc(yyleng + 1);
                     memcpy(yylval, yytext, yyleng);
                     yylval[yyleng] = '\0';
 								    return STRING;}

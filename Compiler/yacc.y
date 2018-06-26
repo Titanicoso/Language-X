@@ -28,7 +28,7 @@
 Program: Defines Functions  {$$ = new_program_node(1, $1, $2); }
 
 Defines: Define Defines  { $$ = new_defines_node(2, $1, $2); }
-        | Define {$$ = new_defines_node(2, NULL, $1); }
+        | /* empty */ {$$ = NULL;}
 
 Define: NUMERAL DEFINE NAME BOOLEAN { $$ = new_define_node(3, $1, $2, $3, NULL, $4); }
         | NUMERAL DEFINE NAME INTEGER {$$ = new_define_node(3, $1, $2, $3, NULL, $4); }
@@ -57,8 +57,8 @@ Sentence: VariableOperation SentenceEnd { $$ = new_sentence_node(11, $1, $2, NUL
 				| For {$$ = new_sentence_node(11, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
 				| While {$$ = new_sentence_node(11, NULL, NULL, NULL, $1, NULL, NULL, NULL); }
 				| If {$$ = new_sentence_node(11, NULL, NULL, NULL, NULL, $1, NULL, NULL); }
-				| FunctionExecute {$$ = new_sentence_node(11, NULL, NULL, NULL, NULL, NULL, $1, NULL); }
-				| Return {$$ = new_sentence_node(11, NULL, NULL, NULL, NULL, NULL, NULL, $1); }
+				| FunctionExecute SentenceEnd {$$ = new_sentence_node(11, NULL, $2, NULL, NULL, NULL, $1, NULL); }
+				| Return SentenceEnd {$$ = new_sentence_node(11, NULL, $2, NULL, NULL, NULL, NULL, $1); }
 
 SentenceEnd: /* empty */ {$$ = new_sentence_end_node(12, NULL); }
 				| SEMICOLON {$$ = new_sentence_end_node(12, $1); }
@@ -114,7 +114,6 @@ Expression: BOOLEAN {$$ = new_expression_node(25, NULL, NULL, NULL, NULL, $1, NU
 				| NAME {$$ = new_expression_node(25, NULL, NULL,  NULL, NULL, NULL, $1); }
 				| INTEGER {$$ = new_expression_node(25, NULL, NULL, NULL, NULL, $1, NULL);}
 				| FunctionExecute { $$ = new_expression_node(25, NULL, NULL, NULL, $1, NULL, NULL); }
-				/*| VariableOperation {}*/
 				| Expression PLUS Expression {$$ = new_expression_node(25, $1, '+', $3, NULL, NULL, NULL);}
 				| Expression MINUS Expression {$$ = new_expression_node(25, $1, '-', $3, NULL, NULL, NULL);} /*Para queue y array cuantos queres sacar - "Se redefine segun el tipo de dato" esto iria en {}, nos fijamos que tipo de dato estamos manejando y segun eso que es lo que hacemos ... */
 				| Expression MOD Expression {$$ = new_expression_node(25, $1, '%', $3, NULL, NULL, NULL);}
@@ -122,7 +121,7 @@ Expression: BOOLEAN {$$ = new_expression_node(25, NULL, NULL, NULL, NULL, $1, NU
 				| Expression MULTIPLY Expression {$$ = new_expression_node(25, $1, '*', $3, NULL, NULL, NULL);}
 
 For: FOR OPEN_PARENTHESES Assignments SEMICOLON Condition SEMICOLON VariableOperation CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(26, $3, $5, $7, $10); }
-				| FOR OPEN_PARENTHESES NAME COLON  CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(26, NULL, NULL, NULL, $7); }
+				| FOR OPEN_PARENTHESES NAME COLON NAME CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(26, NULL, NULL, NULL, $7); }
 
 Condition: Expression LogicalOperation Expression {$$ = new_condition_node(27, $1, $2, $3, NULL); }
 				| Expression {$$ = new_condition_node(27, $1, NULL, NULL, NULL);}
@@ -151,5 +150,3 @@ Return: RETURN Expression {$$ = new_return_node(35, NULL, $1); }
 			| RETURN STRING {$$ = new_return_node(35, $2, NULL); }
 
 %%
-
-

@@ -39,7 +39,7 @@ Functions: Function Functions {$$ = new_functions_node($1, $2); }
 
 Function: NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($1, $3, $6);}
 
-Main: MAIN OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node("main", $3, $6); }
+Main: MAIN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node("main", NULL, $5); }
 
 Arguments: /* empty */	{$$ = NULL;}
 				|	Parameters	{$$ = $1;}

@@ -10,7 +10,7 @@
 
 <Functions> ::= [<Function> <Functions>] <Main>
 <Function> ::= <Name> "(" [<Arguments>] ")" "{" [<Block>] "}"
-<Main> ::= "main" "(" [<Arguments>] ")" "{" [<Block>] "}"
+<Main> ::= "main" "(" ")" "{" [<Block>] "}"
 
 <Arguments> ::= <Parameters>
 <Parameters> ::= <Name> ["," <Parameters>]

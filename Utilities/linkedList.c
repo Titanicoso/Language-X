@@ -36,6 +36,12 @@ void freeList(listADT list) {
     free(list);
 }
 
+int queueInt(listADT list, int element) {
+  int aux = element;
+  int * ptr = &aux;
+  return queue(list, ptr, sizeof(int));
+}
+
 int queue(listADT list, void * element, size_t size) {
   if(list == NULL) {
     return 0;
@@ -84,6 +90,11 @@ void * dequeue(listADT list) {
   return element;
 }
 
+int dequeueInt(listADT list) {
+  int* aux = (int *) dequeue(list);
+  return *aux;
+}
+
 int push(listADT list, void * element, size_t size) {
   if(list == NULL) {
     return 0;
@@ -105,8 +116,18 @@ int push(listADT list, void * element, size_t size) {
   return 1;
 }
 
-int pop(listADT list) {
-  dequeue(list);
+int pushInt(listADT list, int element) {
+  int aux = element;
+  int * ptr = &aux;
+  return push(list, ptr, sizeof(int));
+}
+
+void * pop(listADT list) {
+  return dequeue(list);
+}
+
+int popInt(listADT list) {
+  return dequeueInt(list);
 }
 
 listNodeT * createNode(void * element, size_t size) {

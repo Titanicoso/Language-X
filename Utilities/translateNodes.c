@@ -198,6 +198,9 @@ void translateOperation(expression_node * expression) {
 
 void translateExpressionFunctionCall(function_execute_node * function) {
   fprintf(file, "%s(", function->name);
+  if(getFunction(function->name) == NULL) {
+    error(FUNCTION_NOT_DEFINED);
+  }
   translateCallParameters(function->parameters);
   fprintf(file, ")");
 }
@@ -263,6 +266,9 @@ void translateWhile(while_node * whileNode) {
 void translateFunctionCall(sentence_node * sentence) {
   function_execute_node * function = sentence->function_execute;
   functionNode * fun = getFunction(function->name);
+  if(fun == NULL) {
+    error(FUNCTION_NOT_DEFINED);
+  }
   if(sentence->sentenceEnd != ';') {
     switch (fun->basic) {
       case STRING_T: fprintf(file, "printf(\"%%s\\n\", "); break;

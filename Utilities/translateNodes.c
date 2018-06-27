@@ -9,7 +9,7 @@ static FILE* file = NULL;
 functionNode* funCurrent = NULL;
 
 void translateProgramNode(program_node * program) {
-  file = fopen("../Compiler/compiled.c", "w+");
+  file = fopen("Compiler/compiled.c", "w+");
 	if (file != NULL)	{
 	  fprintf(file,"#include <stdio.h>\n");
 	  fprintf(file,"#include <stdlib.h>\n");
@@ -180,7 +180,7 @@ void translateExpression(expression_node * expression) {
   }
 }
 
-void translateOperation(expression_node * expression) { //TODO
+void translateOperation(expression_node * expression) {
   if(expression->expression_1->production == EXPRESSION_VARIABLE) {
     variableNode * var = getVariable(expression->expression_1->name, funCurrent);
     if(var->compound == QUEUE_T || var->compound == STACK_T) {

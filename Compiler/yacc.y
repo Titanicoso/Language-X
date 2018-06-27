@@ -21,6 +21,7 @@
 	parameters_node* parameters_node;
 	sentences_node* sentences_node;
 	sentence_node* sentence_node;
+	declaration_node * declaration_node;
 	variable_opration_node* variable_opration_node;
 	assignment_node* assignment_node;
 	queue_stack_node* queue_stack_node;
@@ -58,6 +59,7 @@
 %type <sentences_node> Block Sentences
 %type <sentence_node> Sentence
 %type <text> SentenceEnd AssignmentOperation LogicalOperation Increment Decrement
+%type <declaration_node> Declaration
 %type <variable_opration_node> VariableOperation
 %type <assignment_node> Assignment
 %type <queue_stack_node> Queue Stack
@@ -95,7 +97,7 @@ Define: DEFINE NAME BOOLEAN { $$ = new_define_node(DEFINE_INTEGER, $2, $3, NULL)
 Functions: Function Functions {$$ = new_functions_node($1, $2); }
         | Main {$$ = new_functions_node($1, NULL);}
 
-Function: Type NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($2, $4, $7);}
+Function: Type NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($1, $2, $4, $7);}
 
 BasicType: INTEGER_TYPE {$$ = INTEGER_T;}
 			| BOOLEAN_TYPE {$$ = BOOLEAN_T;}
@@ -107,13 +109,13 @@ CompoundType: OPEN_BRACKET BasicType CLOSE_BRACKET {$$ = new_type_node($1, QUEUE
 Type: BasicType {$$ = new_type_node($1, NULL);}
 		| CompoundType {$$ = $1;}
 
-Main: MAIN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node("main", NULL, $5); }
+Main: Type MAIN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($1, "main", NULL, $6); }
 
 Arguments: /* empty */	{$$ = NULL;}
 				|	Parameters	{$$ = $1;}
 
-Parameters: Type NAME {$$ = new_parameters_node($2, NULL); }
-				| Type NAME COMMA Parameters {$$ = new_parameters_node($2, $4); }
+Parameters: Type NAME {$$ = new_parameters_node($1, $2, NULL); }
+				| Type NAME COMMA Parameters {$$ = new_parameters_node($1, $2, $4); }
 
 Block: /* empty */ {$$ = NULL; }
 				| Sentences {$$ = $1;}
@@ -121,16 +123,18 @@ Block: /* empty */ {$$ = NULL; }
 Sentences: Sentence {$$ = new_sentences_node($1, NULL); }
 				| Sentence Sentences {$$ = new_sentences_node($1, $2); }
 
-Sentence: Type NAME SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIABLE, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
-				| VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIABLE, $1, $2, NULL, NULL, NULL, NULL, NULL); }
-				| For {$$ = new_sentence_node(SENTENCE_FOR, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
-				| While {$$ = new_sentence_node(SENTENCE_WHILE, NULL, NULL, NULL, $1, NULL, NULL, NULL); }
-				| If {$$ = new_sentence_node(SENTENCE_IF, NULL, NULL, NULL, NULL, $1, NULL, NULL); }
-				| FunctionExecute SentenceEnd {$$ = new_sentence_node(SENTENCE_FUNCTION, NULL, $2, NULL, NULL, NULL, $1, NULL); }
-				| Return SentenceEnd {$$ = new_sentence_node(SENTENCE_RETURN, NULL, $2, NULL, NULL, NULL, NULL, $1); }
+Sentence: Type NAME SentenceEnd { $$ = new_sentence_node(SENTENCE_DECLARATION, $1, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
+				| VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIABLE, NULL, $1, $2, NULL, NULL, NULL, NULL, NULL); }
+				| For {$$ = new_sentence_node(SENTENCE_FOR, NULL, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
+				| While {$$ = new_sentence_node(SENTENCE_WHILE, NULL, NULL, NULL, NULL, $1, NULL, NULL, NULL); }
+				| If {$$ = new_sentence_node(SENTENCE_IF, NULL, NULL, NULL, NULL, NULL, $1, NULL, NULL); }
+				| FunctionExecute SentenceEnd {$$ = new_sentence_node(SENTENCE_FUNCTION, NULL, NULL, $2, NULL, NULL, NULL, $1, NULL); }
+				| Return SentenceEnd {$$ = new_sentence_node(SENTENCE_RETURN, NULL, NULL, $2, NULL, NULL, NULL, NULL, $1); }
 
 SentenceEnd: /* empty */ {$$ = NULL; }
 				| SEMICOLON {$$ = ";";}
+
+Declaration: Type NAME {$$ = new_declaration_node($1, $2);}
 
 VariableOperation: Assignment {$$ = new_variable_opration_node(VARIABLE_ASSIGNMENT, $1, NULL); }
 				| Increment {$$ = new_variable_opration_node(VARIABLE_INCREMENT, NULL, $1);}

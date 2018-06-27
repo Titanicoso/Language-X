@@ -3,7 +3,7 @@
 
 enum productions
 {
-	DEFINE_INTEGER, DEFINE_STRING, SENTENCE_VARIABLE, SENTENCE_FOR, SENTENCE_WHILE, SENTENCE_IF, SENTENCE_FUNCTION, SENTENCE_RETURN,
+	DEFINE_INTEGER, DEFINE_STRING, SENTENCE_DECLARATION, SENTENCE_VARIABLE, SENTENCE_FOR, SENTENCE_WHILE, SENTENCE_IF, SENTENCE_FUNCTION, SENTENCE_RETURN,
 	VARIABLE_ASSIGNMENT, VARIABLE_INCREMENT, VARIABLE_DECREMENT, ASSIGNMENT_STRING, ASSIGNMENT_QUEUE, ASSIGNMENT_STACK, ASSIGNMENT_EXPRESSION,
 	ELEMENT_BOOLEAN, ELEMENT_STRING, ELEMENT_VARIABLE, ELEMENT_INTEGER, FOR_EACH, REGULAR_FOR, CONDITION_LOGICAL, CONDITION_EXPRESSION, CONDITION_PARENTHESES,
 	EXPRESSION_BOOLEAN, EXPRESSION_VARIABLE, EXPRESSION_INTEGER, EXPRESSION_FUNCTION, EXPRESSION_OPERATION, PARAMERER_STRING, PARAMETER_EXPRESSION,
@@ -61,6 +61,7 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 
 	typedef struct sentence_node{
 		enum productions production;
+		struct declaration_node * declaration;
 		struct variable_opration_node *variable_opration;
 		struct for_node *for_node;
 		struct while_node *while_node;
@@ -69,6 +70,11 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 		struct return_node *return_node;
 		char sentenceEnd; //Si es ; o nada.
 	}sentence_node;
+
+	typedef struct declaration_node{
+		struct type_node * type;
+		char * name;
+	}declaration_node;
 
 	typedef struct variable_opration_node{
 		enum productions production;
@@ -180,6 +186,8 @@ sentences_node*	new_sentences_node(sentence_node * sentence, sentences_node * se
 
 sentence_node* new_sentence_node(enum productions production, variable_opration_node * variable_operation,  char* sentenceEnd,
 	for_node * for_node, while_node * while_node, if_node * if_node,function_execute_node* function_execute, return_node*return_node);
+
+declaration_node *	new_declaration_node(type_node * type, char * name);
 
 variable_opration_node*	new_variable_opration_node(enum productions production, assignment_node * assignment, char * increment_decrement_name);
 

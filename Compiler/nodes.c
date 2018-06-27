@@ -159,9 +159,11 @@ new_variable_opration_node(enum productions production, assignment_node * assign
 	}else if(production == VARIABLE_INCREMENT || production == VARIABLE_DECREMENT){
 		node -> assignment == NULL;
 		name_aux = malloc(strlen(increment_decrement_name) + 1);
+		strcpy(name_aux, increment_decrement_name);
 		node -> increment_decrement_name = name_aux;
-		if(!existsVariable(name_aux))
-			error(VARIABLE_REPETITION);
+		if(!existsVariable(name_aux)) {
+			error(VARIABLE_NOT_DEFINED);
+		}
 	}else{
 		error(INCOMPATIBLE);
 	}

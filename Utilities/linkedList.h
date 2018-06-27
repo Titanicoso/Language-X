@@ -21,7 +21,7 @@ int pushInt(listADT list, int element);
 
 void * pop(listADT list);
 
-int popInt(listADT list)
+int popInt(listADT list);
 
 int isEmpty(listADT list);
 

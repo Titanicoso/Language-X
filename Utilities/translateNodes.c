@@ -181,6 +181,16 @@ void translateExpression(expression_node * expression) {
 }
 
 void translateOperation(expression_node * expression) { //TODO
+  if(expression->expression_1->production == EXPRESSION_VARIABLE) {
+    variableNode * var = getVariable(expression->expression_1->name, funCurrent);
+    if(var->compound == QUEUE_T || var->compound == STACK_T) {
+      switch (expression->op) {
+        case '-': translateQueueStackOperations(var, 0); fprintf(file, ")"); return;
+        case '+': translateQueueStackOperations(var, 1); fprintf(file, ")"); return;
+        default: error(INCOMPATIBLE);
+      }
+    }
+  }
   translateExpression(expression->expression_1);
   fprintf(file, " %c ", expression->op);
   translateExpression(expression->expression_2);
@@ -215,7 +225,7 @@ void translateFor(for_node * forNode) {
 }
 
 void translateQueueStackOperations(variableNode * structure, int add) {
-  char * aux;
+  char * aux = "";
   if(structure->basic == BOOLEAN_T || structure->basic == INTEGER_T)
     aux = "Int";
   if(add) {

@@ -91,9 +91,9 @@ Define: NUMERAL DEFINE NAME BOOLEAN { $$ = new_define_node(DEFINE_INTEGER, $3, $
 Functions: Function Functions {$$ = new_functions_node($1, $2); }
         | Main {$$ = new_functions_node($1, NULL);}
 
-Function: NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($1, $3, $6);}
+Function: NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{createFunction($1); $$ = new_function_node($1, $3, $6);}
 
-Main: MAIN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node("main", NULL, $5); }
+Main: MAIN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{createFunction("main"); $$ = new_function_node("main", NULL, $5); }
 
 Arguments: /* empty */	{$$ = NULL;}
 				|	Parameters	{$$ = $1;}

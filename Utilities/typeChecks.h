@@ -1,11 +1,17 @@
 #ifndef TYPECHECKS_H
 #define TYPECHECKS_H
 
-typedef enum {BOOLEAN, STRING, QUEUE, STACK, INTEGER, VOID} variableType;
+#define TYPE_DEFINED 2
+#define INCOMPATIBLE_DEFINITION 1
+
+typedef enum {FUNCTION_REPETITION_ERROR} errorType;
+
+typedef enum {BOOLEAN, STRING, QUEUE, STACK, INTEGER, VOID, UNKNOWN} variableType;
 
 typedef struct {
   char * name;
   variableType type;
+  variableType elementType;
 } variableNode;
 
 typedef struct variableList {

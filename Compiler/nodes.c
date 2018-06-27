@@ -29,8 +29,8 @@ new_define_node(enum productions production, char*name, int value, char* string_
 	char * name_aux = malloc(sizeof(name)); 
 	strcpy(name_aux, name); 
 
-	if(exists_variable(name_aux)){
-		error(); 
+	if(existsDefine(name_aux)){
+		error();
 	}else{
 
 		define_node * node = malloc(sizeof(define_node)); 
@@ -48,6 +48,7 @@ new_define_node(enum productions production, char*name, int value, char* string_
 			error(); 
 		}
 	}
+	addToDefines(name_aux, production == DEFINE_INTEGER? INTEGER : STRING);
 
 	return node; 	
 }
@@ -72,13 +73,9 @@ new_function_node(char* name, parameters_node * parameters, sentences_node * sen
 	char * name_aux = malloc(sizeof(name) + 1);
 	strcpy(name_aux, name); 
 
-	if(exists_function_name(name_aux)){
-		error(); /*Printf + exit*/
-	}else{
 		node -> parameters = parameters;
 		node -> sentences = sentences;
 		node -> name = name_aux;   
-	}
 	return node; /*total la idea es que el error() se encargue de terminar antes si es necesario*/
 }
 
@@ -89,15 +86,8 @@ new_parameters_node(char*name, parameters_node * next){
 	char * name_aux = malloc(sizeof(name)); 
 	strcpy(name_aux, name); 
 
-	if(exists_parameter_in_function()){
-		/*chequear que los nombres de los 
-		parametros pertenecesientes a dicha 
-		funcion son unicos - Podriamos decir
-		que en nuestro lenguaje no se puede
-		repetir en ningun momento nombres, si seria
-		un chino de lenguaje para usar, pero nos ahorraria
-		problemas a nosotros*/
-		error(); 
+	if(!addParameterToFunction(name_aux)){
+		error();
 	}else{
 		node -> name = name_aux; 
 		if(next != NULL){
@@ -140,13 +130,16 @@ new_sentence_node(enum productions production, variable_operation_node * variabl
 	node -> function_execute = function_execute; 
 	node -> return_node = return_node; 
 
-	if(sentenceEnd != NULL && sentenceEnd!=';'){
-		error(); 
+	if(sentenceEnd != NULL && *sentenceEnd !=';'){
+		error();
 	}else{
-		node -> sentenceEnd = sentenceEnd; 
+		if(sentenceEnd == NULL)
+			node -> sentenceEnd = '\0';
+		else
+			node -> sentenceEnd = ';';
 	}
 
-	return node; 
+	return node;
 }
 
 variable_operation_node*
@@ -163,6 +156,8 @@ new_variable_operation_node(enum productions production, assignment_node * assig
 	}else if(production == VARIABLE_INCREMENT || production == VARIABLE_DECREMENT){
 		node -> assignment == NULL; 
 		node -> increment_decrement_name = name_aux; 
+		if(!existsVariable(name_aux))
+			error();
 	}else{
 		error(); 
 	}
@@ -188,12 +183,16 @@ new_assignment_node(enum productions production, char * name,
 		node -> queue_stack = NULL; 
 		node -> assignment_operation = NULL; 
 		node -> expression = NULL; 
+		if(!addVariable(name_aux, STRING))
+			error();
 	}else if(production == ASSIGNMENT_QUEUE || production == ASSIGNMENT_STACK){
 
 		node -> string = NULL; 
 		node -> queue_stack = queue_stack; 
 		node -> assignment_operation = NULL; 
 		node -> expression = NULL; 
+		if(!addVariable(name_aux, production == ASSIGNMENT_QUEUE? QUEUE: STACK))
+			error();
 	}else if(production == ASSIGNMENT_EXPRESSION){
 
 		node -> string = NULL; 
@@ -204,6 +203,8 @@ new_assignment_node(enum productions production, char * name,
 		node -> assignment_operation = assignment_operation_aux; 
 
 		node -> expression = expression; 
+		//if(!addVariable(name_aux, getExpressionType(expression)))
+		//	error();
 	}else {
 		error(); 
 	}
@@ -468,6 +469,8 @@ new_return_node(enum productions production,
 		strcpy(string_aux, string); 
 		node -> string = string_aux; 
 		node -> expression = NULL; 
+		if(!addReturn(STRING))
+			error();
 	}else{
 		error(); 
 	}

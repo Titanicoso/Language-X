@@ -177,6 +177,24 @@ int existsVariableTyped(char * name, variableType type) {
   return 0;
 }
 
+int isIterable(char * name) {
+  variableNode * ret = getVariableFromList(name, current->arguments);
+  if(ret != NULL) {
+    if(ret->type == QUEUE || ret->type == STACK) {
+      return 1;
+    }
+    return 0;
+  }
+  ret = getVariableFromList(name, current->variables);
+  if(ret != NULL) {
+    if(ret->type == QUEUE || ret->type == STACK) {
+      return 1;
+    }
+    return 0;
+  }
+  return 0;
+}
+
 int existsVariable(char * name) {
   if(current == NULL) {
     current = createFunction();

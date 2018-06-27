@@ -87,7 +87,7 @@ void translateFunctions(functions_node * functions) {
     funCurrent = fun;
     translateFunctionDefinition(fun);
     fprintf(file, " {\n");
-    declareVariables(fun->variables);
+    //declareVariables(fun->variables);
     translateSentences(function->sentences);
     fprintf(file, "}\n\n");
     next = next->next;
@@ -115,6 +115,7 @@ void translateSentences(sentences_node * sentences) {
 
 void translateSentence(sentence_node * sentence) {
   switch (sentence->production) {
+    case SENTENCE_DECLARATION: translateDeclaration(sentence); break;
     case SENTENCE_IF: translateIf(sentence->if_node); break;
     case SENTENCE_FOR: translateFor(sentence->for_node); break;
     case SENTENCE_WHILE: translateWhile(sentence->while_node); break;
@@ -122,6 +123,14 @@ void translateSentence(sentence_node * sentence) {
     case SENTENCE_VARIABLE: translateVariableOperation(sentence); break;
     case SENTENCE_RETURN: translateReturn(sentence); break;
   }
+}
+
+void translateDeclaration(sentence_node * sentence) {
+  declaration_node * declaration = sentence->declaration;
+  variableNode * variable = getVariable(declaration->name, funCurrent);
+  translateType(variable->type);
+  fprintf(file, "%s;\n", variable->name);
+  translateSentenceEnd(sentence);
 }
 
 void translateIf(if_node * ifNode) {
@@ -169,8 +178,7 @@ void translateExpression(expression_node * expression) {
   }
 }
 
-void translateOperation(expression_node * expression) {
-  //TODO: DEQUEUE Y POP
+void translateOperation(expression_node * expression) { //TODO
   translateExpression(expression->expression_1);
   fprintf(file, " %c ", expression->op);
   translateExpression(expression->expression_2);
@@ -194,11 +202,34 @@ void translateFor(for_node * forNode) {
     fprintf(file, "}\n");
     return;
   }
-
+  if(!isIterable(forNode->structure))
+    error(INCOMPATIBLE_TYPE);
+  variableNode * variable = getVariable(forNode->structure, funCurrent);
   fprintf(file, "while(!isEmpty(%s)) {\n", forNode->structure);
-  //TODO: AGREGAR SENTENCIA DE DEQUEUE;
+  fprintf(file, "%s = ", variable->name);
+  translateQueueStackOperations(variable, 0);
+  fprintf(file, ");\n");
   translateSentences(forNode->sentences);
   fprintf(file, "}\n");
+}
+
+void translateQueueStackOperations(variableNode * structure, int add) {
+  char * aux;
+  if(structure->elementType == BOOLEAN || structure->elementType == INTEGER)
+    aux = "Int";
+  if(add) {
+    if(structure->type == QUEUE) {
+      fprintf(file, "queue%s(%s, ", aux, structure->name);
+    } else {
+      fprintf(file, "push%s(%s, ", aux, structure->name);
+    }
+  } else {
+    if(structure->type == QUEUE) {
+      fprintf(file, "dequeue%s(%s)", aux, structure->name);
+    } else {
+      fprintf(file, "pop%s(%s)", aux, structure->name);
+    }
+  }
 }
 
 void translateForVariableOperation(variable_opration_node * variableOperation) {
@@ -332,12 +363,17 @@ void translateSentenceEnd(sentence_node * sentence) {
     return;
   }
 
-  if(sentence->production == SENTENCE_VARIABLE) {
+  if(sentence->production == SENTENCE_VARIABLE || sentence->production == SENTENCE_DECLARATION) {
     variable_opration_node * variableOperation = sentence->variable_opration;
+    declaration_node * declaration = sentence->declaration;
     char * var;
-    switch (variableOperation->production) {
-      case VARIABLE_ASSIGNMENT: var = variableOperation->assignment->name; break;
-      case VARIABLE_INCREMENT: var = variableOperation->increment_decrement_name; break;
+    if(variableOperation != NULL) {
+      switch (variableOperation->production) {
+        case VARIABLE_ASSIGNMENT: var = variableOperation->assignment->name; break;
+        case VARIABLE_INCREMENT: var = variableOperation->increment_decrement_name; break;
+      }
+    } else {
+      var = declaration->name;
     }
     variableNode * variable = getVariable(var, funCurrent);
 

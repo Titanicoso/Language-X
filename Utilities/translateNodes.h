@@ -18,6 +18,10 @@ void translateFunctionDefinitions(functionList * functions);
 
 void translateFunctionDefinition(functionNode * function);
 
+void translateDeclaration(sentence_node * sentence);
+
+void translateQueueStackOperations(variableNode * structure, int add);
+
 void translateParameters(variableList * arguments);
 
 void translateFunctions(functions_node * functions);

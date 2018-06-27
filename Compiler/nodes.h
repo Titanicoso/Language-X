@@ -34,8 +34,8 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 	} define_node;
 
 	typedef struct type_node{
-		enum basicTypes basicType;
-		enum compoundTypes compoundType;
+		basicTypes basicType;
+		compoundTypes compoundType;
 	} type_node;
 
 	typedef struct functions_node{
@@ -44,14 +44,14 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 	} functions_node;
 
 	typedef struct function_node{
-		struct type_node * type;  
+		struct type_node * type;
 		struct parameters_node * parameters;
 		struct sentences_node * sentences;
 		char * name;
 	} function_node;
 
 	typedef struct parameters_node {
-		struct type_node * type; 
+		struct type_node * type;
 		struct parameters_node * next;
 		char* name; /*NAME*/
 	} parameters_node;
@@ -63,7 +63,7 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 
 	typedef struct sentence_node{
 		enum productions production;
-		struct type_node * type; 
+		struct type_node * type;
 		struct declaration_node * declaration;
 		struct variable_opration_node *variable_opration;
 		struct for_node *for_node;
@@ -179,15 +179,15 @@ define_node* new_define_node(enum productions production, char*name, int value, 
 
 functions_node*	new_functions_node(function_node * function, functions_node * next);
 
-function_node* new_function_node(char* name, parameters_node * parameters, sentences_node * sentences);
+function_node* new_function_node(type_node * type, char* name, parameters_node * parameters, sentences_node * sentences);
 
-type_node * new_type_node(basicType basic, compoundType compound);
+type_node * new_type_node(basicTypes basic, compoundTypes compound);
 
-parameters_node* new_parameters_node(char*name, parameters_node * next);
+parameters_node* new_parameters_node(type_node * type, char*name, parameters_node * next);
 
 sentences_node*	new_sentences_node(sentence_node * sentence, sentences_node * sentences);
 
-sentence_node* new_sentence_node(enum productions production, variable_opration_node * variable_operation,  char* sentenceEnd,
+sentence_node* new_sentence_node(enum productions production, declaration_node * declaration, variable_opration_node * variable_operation,  char* sentenceEnd,
 	for_node * for_node, while_node * while_node, if_node * if_node,function_execute_node* function_execute, return_node*return_node);
 
 declaration_node *	new_declaration_node(type_node * type, char * name);

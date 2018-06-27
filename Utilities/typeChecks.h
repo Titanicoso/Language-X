@@ -61,6 +61,8 @@ variableNode * getVariableFromList(char * name, variableList * list);
 
 int existsVariableTyped(char * name, variableType type);
 
+int isIterable(char * name);
+
 int existsVariable(char * name);
 
 #endif

@@ -10,7 +10,7 @@
 %union {
 	char * text;
 	int value;
-	basicType type;
+	basicTypes type;
 
 	program_node* program_node;
 	defines_node* defines_node;
@@ -54,7 +54,7 @@
 %type <functions_node> Functions
 %type <function_node> Function Main
 %type <type_node> Type CompoundType
-%type <basicType> BasicType
+%type <type> BasicType
 %type <parameters_node> Arguments Parameters
 %type <sentences_node> Block Sentences
 %type <sentence_node> Sentence
@@ -103,10 +103,10 @@ BasicType: INTEGER_TYPE {$$ = INTEGER_T;}
 			| BOOLEAN_TYPE {$$ = BOOLEAN_T;}
 			| STRING_TYPE {$$ = STRING_T;}
 
-CompoundType: OPEN_BRACKET BasicType CLOSE_BRACKET {$$ = new_type_node($1, QUEUE_T);}
-			| LESS_THAN BasicType GREATER_THAN {$$ = new_type_node($1, STACK_T);}
+CompoundType: OPEN_BRACKET BasicType CLOSE_BRACKET {$$ = new_type_node($2, QUEUE_T);}
+			| LESS_THAN BasicType GREATER_THAN {$$ = new_type_node($2, STACK_T);}
 
-Type: BasicType {$$ = new_type_node($1, NULL);}
+Type: BasicType {$$ = new_type_node($1, $1);}
 		| CompoundType {$$ = $1;}
 
 Main: Type MAIN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($1, "main", NULL, $6); }
@@ -123,7 +123,7 @@ Block: /* empty */ {$$ = NULL; }
 Sentences: Sentence {$$ = new_sentences_node($1, NULL); }
 				| Sentence Sentences {$$ = new_sentences_node($1, $2); }
 
-Sentence: Type NAME SentenceEnd { $$ = new_sentence_node(SENTENCE_DECLARATION, $1, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
+Sentence: Declaration SentenceEnd { $$ = new_sentence_node(SENTENCE_DECLARATION, $1, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 				| VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIABLE, NULL, $1, $2, NULL, NULL, NULL, NULL, NULL); }
 				| For {$$ = new_sentence_node(SENTENCE_FOR, NULL, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
 				| While {$$ = new_sentence_node(SENTENCE_WHILE, NULL, NULL, NULL, NULL, $1, NULL, NULL, NULL); }

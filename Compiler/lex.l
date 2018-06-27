@@ -2,6 +2,7 @@
   #include <stdio.h>
   #include <stdlib.h>
   #include <string.h>
+  #include "nodes.h"
   #include "y.tab.h"
 %}
 
@@ -50,13 +51,13 @@
 								    return INTEGER;}
 
 [a-zA-Z]([a-zA-Z0-9_])*		{yylval.text = malloc(yyleng + 1);
-                          memcpy(yylval, yytext, yyleng);
-                          yylval[yyleng] = '\0';
+                          memcpy(yylval.text, yytext, yyleng);
+                          (yylval.text)[yyleng] = '\0';
 								          return NAME;}
 
 \"[^\"]*\"					{yylval.text = malloc(yyleng + 1);
-                    memcpy(yylval, yytext, yyleng);
-                    yylval[yyleng] = '\0';
+                    memcpy(yylval.text, yytext, yyleng);
+                    (yylval.text)[yyleng] = '\0';
 								    return STRING;}
 
 \/\*[^\*\/]*\*\/    ;

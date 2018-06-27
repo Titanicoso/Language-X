@@ -86,7 +86,7 @@ Defines: Define Defines  { $$ = new_defines_node($1, $2); }
 
 Define: NUMERAL DEFINE NAME BOOLEAN { $$ = new_define_node(DEFINE_INTEGER, $3, $4, NULL); }
         | NUMERAL DEFINE NAME INTEGER {$$ = new_define_node(DEFINE_INTEGER, $3, $4, NULL); }
-        | NUMERAL DEFINE NAME STRING {$$ = new_define_node(DEFINE_STRING, $3, NULL, $4); }
+        | NUMERAL DEFINE NAME STRING {$$ = new_define_node(DEFINE_STRING, $3, 0, $4); }
 
 Functions: Function Functions {$$ = new_functions_node($1, $2); }
         | Main {$$ = new_functions_node($1, NULL);}
@@ -117,9 +117,9 @@ Sentence: VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIAB
 SentenceEnd: /* empty */ {$$ = NULL; }
 				| SEMICOLON {$$ = ";";}
 
-VariableOperation: Assignment {$$ = new_variable_operation_node(VARIABLE_ASSIGNMENT, $1, NULL); }
-				| Increment {$$ = new_variable_operation_node(VARIABLE_INCREMENT, NULL, $1);}
-				| Decrement {$$ = new_variable_operation_node(VARIABLE_DECREMENT, NULL, $1);}
+VariableOperation: Assignment {$$ = new_variable_opration_node(VARIABLE_ASSIGNMENT, $1, NULL); }
+				| Increment {$$ = new_variable_opration_node(VARIABLE_INCREMENT, NULL, $1);}
+				| Decrement {$$ = new_variable_opration_node(VARIABLE_DECREMENT, NULL, $1);}
 
 Assignment: NAME EQUAL STRING {$$ = new_assignment_node(ASSIGNMENT_STRING, $1, $3, NULL, NULL, NULL); }
 				| NAME EQUAL Queue {$$ = new_assignment_node(ASSIGNMENT_QUEUE, $1, NULL, $3, NULL, NULL); }
@@ -137,9 +137,9 @@ Elements: Element COMMA Elements {$$ = new_elements_node($1, $3); }
 				| Element {$$ = new_elements_node($1, NULL); }
 
 Element: BOOLEAN {$$ = new_element_node(ELEMENT_BOOLEAN, $1, NULL); }
-				| STRING {$$ = new_element_node(ELEMENT_STRING, NULL, $1);}
+				| STRING {$$ = new_element_node(ELEMENT_STRING, 0, $1);}
 				| INTEGER {$$ = new_element_node(ELEMENT_INTEGER, $1, NULL);}
-				| NAME {$$ = new_element_node(ELEMENT_VARIABLE, NULL, $1);}
+				| NAME {$$ = new_element_node(ELEMENT_VARIABLE, 0, $1);}
 
 AssignmentOperation: PLUS EQUAL {$$ = "+="; }
  				| EQUAL {$$ = "="; }
@@ -160,15 +160,15 @@ Increment: NAME PLUS PLUS {$$ = $1;}
 
 Decrement: NAME MINUS MINUS {$$ = $1;}
 
-Expression: BOOLEAN {$$ = new_expression_node(EXPRESSION_BOOLEAN, NULL, NULL, NULL, NULL, $1, NULL); }
-				| NAME {$$ = new_expression_node(EXPRESSION_VARIABLE, NULL, NULL,  NULL, NULL, NULL, $1); }
-				| INTEGER {$$ = new_expression_node(EXPRESSION_INTEGER, NULL, NULL, NULL, NULL, $1, NULL);}
-				| FunctionExecute { $$ = new_expression_node(EXPRESSION_FUNCTION, NULL, NULL, NULL, $1, NULL, NULL); }
-				| Expression PLUS Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '+', $3, NULL, NULL, NULL);}
-				| Expression MINUS Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '-', $3, NULL, NULL, NULL);} /*Para queue y array cuantos queres sacar - "Se redefine segun el tipo de dato" esto iria en {}, nos fijamos que tipo de dato estamos manejando y segun eso que es lo que hacemos ... */
-				| Expression MOD Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '%', $3, NULL, NULL, NULL);}
-				| Expression DIVIDE Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '/', $3, NULL, NULL, NULL);}
-				| Expression MULTIPLY Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '*', $3, NULL, NULL, NULL);}
+Expression: BOOLEAN {$$ = new_expression_node(EXPRESSION_BOOLEAN, NULL, 0, NULL, NULL, $1, NULL); }
+				| NAME {$$ = new_expression_node(EXPRESSION_VARIABLE, NULL, 0,  NULL, NULL, 0, $1); }
+				| INTEGER {$$ = new_expression_node(EXPRESSION_INTEGER, NULL, 0, NULL, NULL, $1, NULL);}
+				| FunctionExecute { $$ = new_expression_node(EXPRESSION_FUNCTION, NULL, 0, NULL, $1, 0, NULL); }
+				| Expression PLUS Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '+', $3, NULL, 0, NULL);}
+				| Expression MINUS Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '-', $3, NULL, 0, NULL);} /*Para queue y array cuantos queres sacar - "Se redefine segun el tipo de dato" esto iria en {}, nos fijamos que tipo de dato estamos manejando y segun eso que es lo que hacemos ... */
+				| Expression MOD Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '%', $3, NULL, 0, NULL);}
+				| Expression DIVIDE Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '/', $3, NULL, 0, NULL);}
+				| Expression MULTIPLY Expression {$$ = new_expression_node(EXPRESSION_OPERATION, $1, '*', $3, NULL, 0, NULL);}
 
 For: FOR OPEN_PARENTHESES Assignment SEMICOLON Condition SEMICOLON VariableOperation CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(REGULAR_FOR, $3, $5, $7, $10, NULL, NULL); }
 				| FOR OPEN_PARENTHESES NAME COLON NAME CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_for_node(FOR_EACH, NULL, NULL, NULL, $8, $3, $5);}

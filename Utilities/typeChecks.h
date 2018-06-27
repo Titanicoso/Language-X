@@ -33,6 +33,8 @@ typedef struct functionList {
 
 functionList * getFunctionList();
 
+int functionExists(char * name);
+
 void createFunction(char * name);
 
 void addToList(functionNode * function, functionList * list);

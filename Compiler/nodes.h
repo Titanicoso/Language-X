@@ -151,4 +151,59 @@ enum productions
 		struct expression_node *expression;
 	} return_node;
 
+program_node*	new_program_node(defines_node * defines, functions_node * functions);
+
+defines_node*	new_defines_node(define_node * define, defines_node * next);
+
+define_node* new_define_node(enum productions production, char*name, int value, char* string_name);
+
+functions_node*	new_functions_node(function_node * function, functions_node * next);
+
+function_node* new_function_node(char* name, parameters_node * parameters, sentences_node * sentences);
+
+parameters_node* new_parameters_node(char*name, parameters_node * next);
+
+sentences_node*	new_sentences_node(sentence_node * sentence, sentences_node * sentences);
+
+sentence_node* new_sentence_node(enum productions production, variable_opration_node * variable_operation,  char* sentenceEnd,
+	for_node * for_node, while_node * while_node, if_node * if_node,function_execute_node* function_execute, return_node*return_node);
+
+variable_opration_node*	new_variable_opration_node(enum productions production, assignment_node * assignment, char * increment_decrement_name);
+
+assignment_node* new_assignment_node(enum productions production, char * name,
+	char * string, queue_stack_node * queue_stack, char* assignment_operation, expression_node * expression);
+
+queue_stack_node * new_queue_stack_node(elements_node * elements);
+
+elements_node *	new_elements_node (element_node * element, elements_node * next);
+
+element_node * new_element_node(enum productions production, int value, char * string_name);
+
+if_node *	new_if_node(condition_node * condition, sentences_node * sentences, if_node * else_branch);
+
+while_node*	new_while_node(condition_node * condition, sentences_node * sentences);
+
+for_node*	new_for_node(enum productions production, assignment_node *assignment, condition_node *condition,
+			variable_opration_node *variable_operation, sentences_node *sentences, char * variable,	char * structure);
+
+condition_node*	new_condition_node(enum productions production, expression_node *expression_1, char * logical_operation,
+	expression_node *expression_2, condition_node *condition);
+
+expression_node* new_expression_node(enum productions production,	expression_node *expression_1,
+		char op, expression_node *expression_2,	function_execute_node *function_execute,
+		int boolean_number, char * name);
+
+function_execute_node* new_function_execute_node(char * name, call_parameters_node * parameters);
+
+call_parameters_node * new_call_parameters_node(call_parameter_node * parameter,
+	call_parameters_node * next);
+
+call_parameter_node* new_call_parameter_node(enum productions production,	char* string,
+	expression_node *expression);
+
+return_node *	new_return_node(enum productions production, char* string,
+		expression_node *expression);
+
+void error();
+
 #endif

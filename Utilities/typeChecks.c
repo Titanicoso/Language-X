@@ -12,16 +12,20 @@ functionList * getFunctionList() {
   return functions;
 }
 
+int functionExists(char * name) {
+  return getFunction(name) != NULL;
+}
+
 void createFunction(char * name) {
 	if(functionExists(name)) {
-		printError(FUNCTION_REPETITION_ERROR);
+		error();
 	}
 
 	functionNode * function = malloc(sizeof(functionNode));
 	function->name = malloc(strlen(name) + 1);
 	strcpy(function->name, name);
 	function->returnType = UNKNOWN;
-	function->parameters = NULL;
+	function->arguments = NULL;
 	function->variables = NULL;
 
 	addToList(function, functions);
@@ -48,8 +52,8 @@ int addParameterToFunction(char * name) {
 
   variableList * node = malloc(sizeof(variableList));
   node->variable = createVariable(name, UNKNOWN, UNKNOWN);
-  node->next = current->parameters;
-  current->parameters = node;
+  node->next = current->arguments;
+  current->arguments = node;
 
   return 1;
 }
@@ -96,12 +100,12 @@ int parameterExists(char * name) {
   variableNode * ret = getVariableFromList(name, defines);
   if(ret != NULL)
     return 1;
-  variableNode * ret = getVariableFromList(name, current->parameters);
+  ret = getVariableFromList(name, current->arguments);
   return ret != NULL;
 }
 
 functionNode * getFunction(char * name) {
-  functionList * next = functionList;
+  functionList * next = functions;
   while(next != NULL) {
     functionNode * function = next->function;
     if(strcmp(function->name, name) == 0)
@@ -115,10 +119,10 @@ variableNode * getVariable(char * name, functionNode * function) {
   variableNode * ret = getVariableFromList(name, defines);
   if(ret != NULL)
     return ret;
-  variableNode * ret = getVariableFromList(name, function->parameters);
+  ret = getVariableFromList(name, function->arguments);
   if(ret != NULL)
     return ret;
-  variableNode * ret = getVariableFromList(name, function->variables);
+  ret = getVariableFromList(name, function->variables);
   return ret;
 }
 
@@ -134,7 +138,7 @@ variableNode * getVariableFromList(char * name, variableList * list) {
 }
 
 int existsVariableTyped(char * name, variableType type) {
-  variableNode * ret = getVariableFromList(name, function->parameters);
+  variableNode * ret = getVariableFromList(name, current->arguments);
   if(ret != NULL) {
     if(ret->type == UNKNOWN || ret->type == type) {
       ret->type = type;
@@ -142,7 +146,7 @@ int existsVariableTyped(char * name, variableType type) {
     }
     return INCOMPATIBLE_DEFINITION;
   }
-  variableNode * ret = getVariableFromList(name, function->variables);
+  ret = getVariableFromList(name, current->variables);
   if(ret != NULL) {
     if(ret->type == UNKNOWN || ret->type == type) {
       ret->type = type;
@@ -154,9 +158,9 @@ int existsVariableTyped(char * name, variableType type) {
 }
 
 int existsVariable(char * name) {
-  variableNode * ret = getVariableFromList(name, function->parameters);
+  variableNode * ret = getVariableFromList(name, current->arguments);
   if(ret != NULL)
     return 1;
-  variableNode * ret = getVariableFromList(name, function->variables);
+  ret = getVariableFromList(name, current->variables);
   return ret != NULL;
 }

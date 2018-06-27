@@ -119,9 +119,9 @@ new_sentences_node(sentence_node * sentence, sentences_node * sentences){
 }
 
 sentence_node*
-new_sentence_node(enum productions production, variable_opration_node * variable_operation,
+new_sentence_node(enum productions production, variable_opration_node * variable_operation,  char* sentenceEnd,
 	for_node * for_node, while_node * while_node, if_node * if_node,
-	function_execute_node* function_execute, return_node*return_node, char* sentenceEnd){
+	function_execute_node* function_execute, return_node*return_node){
 
 	sentence_node * node = malloc(sizeof(sentence_node));
 
@@ -356,7 +356,7 @@ new_condition_node(enum productions production, expression_node *expression_1, c
 		node -> expression_2 = NULL;
 		node -> condition = condition;
 	}else{
-		erro();
+		error();
 	}
 	return node;
 }
@@ -474,4 +474,9 @@ new_return_node(enum productions production,
 	}
 
 	return node;
+}
+
+void error() {
+	printf("ERROR\n");
+	exit(1);
 }

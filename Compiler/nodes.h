@@ -10,6 +10,10 @@ enum productions
 	RETURN_STRING, RETURN_EXPRESSION
 };
 
+typedef enum {INTEGER_T, BOOLEAN_T, STRING_T} basicTypes;
+
+typedef enum {QUEUE_T, STACK_T} compoundTypes;
+
 typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCOMPATIBLE_TYPE, VARIABLE_NOT_DEFINED} errorType;
 
 	typedef struct program_node{
@@ -28,6 +32,11 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 		char* string_name;
 		int value;
 	} define_node;
+
+	typedef struct type_node{
+		basicTypes basicType;
+		compoundTypes compoundType;
+	} type_node;
 
 	typedef struct functions_node{
 		struct function_node * function;
@@ -162,6 +171,8 @@ define_node* new_define_node(enum productions production, char*name, int value, 
 functions_node*	new_functions_node(function_node * function, functions_node * next);
 
 function_node* new_function_node(char* name, parameters_node * parameters, sentences_node * sentences);
+
+type_node * new_type_node(basicType basic, compoundType compound);
 
 parameters_node* new_parameters_node(char*name, parameters_node * next);
 

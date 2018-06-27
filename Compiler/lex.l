@@ -26,7 +26,6 @@
 "/"  {return DIVIDE;}
 "%"  {return MOD;}
 "="  {return EQUAL;}
-"#"  {return NUMERAL;}
 "!="  {return NOT_EQUAL;}
 ">="  {return GREATER_OR_EQUAL;}
 "<="  { return LESS_OR_EQUAL;}
@@ -40,7 +39,10 @@
 "while" {return WHILE;}
 "if"   {return IF;}
 "else"  {return ELSE;}
-"elif"  {return ELSE_IF;}
+
+"boolean" {return BOOLEAN_TYPE;}
+"int" {return INTEGER_TYPE;}
+"string" {return STRING_TYPE;}
 
 "main"  {return MAIN;}
 

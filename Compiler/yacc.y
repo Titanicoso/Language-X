@@ -10,12 +10,14 @@
 %union {
 	char * text;
 	int value;
+	basicType type;
 
 	program_node* program_node;
 	defines_node* defines_node;
 	define_node* define_node;
 	functions_node* functions_node;
 	function_node* function_node;
+	type_node * type_node;
 	parameters_node* parameters_node;
 	sentences_node* sentences_node;
 	sentence_node* sentence_node;
@@ -37,8 +39,8 @@
 
 
 %token SEMICOLON COLON COMMA OPEN_CURLY_BRACES CLOSE_CURLY_BRACES LESS_THAN GREATER_THAN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_BRACKET CLOSE_BRACKET
-%token PLUS MINUS MULTIPLY DIVIDE MOD EQUAL NUMERAL NOT_EQUAL GREATER_OR_EQUAL LESS_OR_EQUAL AND OR
-%token RETURN DEFINE FOR WHILE IF ELSE ELSE_IF MAIN
+%token PLUS MINUS MULTIPLY DIVIDE MOD EQUAL NOT_EQUAL GREATER_OR_EQUAL LESS_OR_EQUAL AND OR
+%token RETURN DEFINE FOR WHILE IF ELSE MAIN BOOLEAN_TYPE INTEGER_TYPE STRING_TYPE
 
 %token <value> BOOLEAN
 %token <value> INTEGER
@@ -50,6 +52,8 @@
 %type <define_node> Define
 %type <functions_node> Functions
 %type <function_node> Function Main
+%type <type_node> Type CompoundType
+%type <basicType> BasicType
 %type <parameters_node> Arguments Parameters
 %type <sentences_node> Block Sentences
 %type <sentence_node> Sentence
@@ -84,22 +88,32 @@ Program: Defines Functions  {$$ = new_program_node($1, $2); translateProgramNode
 Defines: Define Defines  { $$ = new_defines_node($1, $2); }
         | /* empty */ {$$ = NULL; createFunction();}
 
-Define: NUMERAL DEFINE NAME BOOLEAN { $$ = new_define_node(DEFINE_INTEGER, $3, $4, NULL); }
-        | NUMERAL DEFINE NAME INTEGER {$$ = new_define_node(DEFINE_INTEGER, $3, $4, NULL); }
-        | NUMERAL DEFINE NAME STRING {$$ = new_define_node(DEFINE_STRING, $3, 0, $4); }
+Define: DEFINE NAME BOOLEAN { $$ = new_define_node(DEFINE_INTEGER, $2, $3, NULL); }
+        | DEFINE NAME INTEGER {$$ = new_define_node(DEFINE_INTEGER, $2, $3, NULL); }
+        | DEFINE NAME STRING {$$ = new_define_node(DEFINE_STRING, $2, 0, $3); }
 
 Functions: Function Functions {$$ = new_functions_node($1, $2); }
         | Main {$$ = new_functions_node($1, NULL);}
 
-Function: NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($1, $3, $6);}
+Function: Type NAME OPEN_PARENTHESES Arguments CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($2, $4, $7);}
+
+BasicType: INTEGER_TYPE {$$ = INTEGER_T;}
+			| BOOLEAN_TYPE {$$ = BOOLEAN_T;}
+			| STRING_TYPE {$$ = STRING_T;}
+
+CompoundType: OPEN_BRACKET BasicType CLOSE_BRACKET {$$ = new_type_node($1, QUEUE_T);}
+			| LESS_THAN BasicType GREATER_THAN {$$ = new_type_node($1, STACK_T);}
+
+Type: BasicType {$$ = new_type_node($1, NULL);}
+		| CompoundType {$$ = $1;}
 
 Main: MAIN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node("main", NULL, $5); }
 
 Arguments: /* empty */	{$$ = NULL;}
 				|	Parameters	{$$ = $1;}
 
-Parameters: NAME {$$ = new_parameters_node($1, NULL); }
-				| NAME COMMA Parameters {$$ = new_parameters_node($1, $3); }
+Parameters: Type NAME {$$ = new_parameters_node($2, NULL); }
+				| Type NAME COMMA Parameters {$$ = new_parameters_node($2, $4); }
 
 Block: /* empty */ {$$ = NULL; }
 				| Sentences {$$ = $1;}
@@ -107,7 +121,8 @@ Block: /* empty */ {$$ = NULL; }
 Sentences: Sentence {$$ = new_sentences_node($1, NULL); }
 				| Sentence Sentences {$$ = new_sentences_node($1, $2); }
 
-Sentence: VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIABLE, $1, $2, NULL, NULL, NULL, NULL, NULL); }
+Sentence: Type NAME SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIABLE, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
+				| VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIABLE, $1, $2, NULL, NULL, NULL, NULL, NULL); }
 				| For {$$ = new_sentence_node(SENTENCE_FOR, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
 				| While {$$ = new_sentence_node(SENTENCE_WHILE, NULL, NULL, NULL, $1, NULL, NULL, NULL); }
 				| If {$$ = new_sentence_node(SENTENCE_IF, NULL, NULL, NULL, NULL, $1, NULL, NULL); }
@@ -182,7 +197,7 @@ While: WHILE OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Bloc
 If: IF OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES Else {$$ = new_if_node($3, $6, $8); }
 
 Else: ELSE OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_if_node(NULL, $3, NULL); }
-				| ELSE_IF OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES Else {$$ = new_if_node($3, $6, $8); }
+				| ELSE OPEN_PARENTHESES Condition CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES Else {$$ = new_if_node($3, $6, $8); }
 				| /* empty */{$$ = NULL; }
 
 FunctionExecute: NAME OPEN_PARENTHESES CallArguments CLOSE_PARENTHESES {$$ = new_function_execute_node($1, $3); }

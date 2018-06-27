@@ -34,8 +34,8 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 	} define_node;
 
 	typedef struct type_node{
-		basicTypes basicType;
-		compoundTypes compoundType;
+		enum basicTypes basicType;
+		enum compoundTypes compoundType;
 	} type_node;
 
 	typedef struct functions_node{
@@ -44,12 +44,14 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 	} functions_node;
 
 	typedef struct function_node{
+		struct type_node * type;  
 		struct parameters_node * parameters;
 		struct sentences_node * sentences;
 		char * name;
 	} function_node;
 
 	typedef struct parameters_node {
+		struct type_node * type; 
 		struct parameters_node * next;
 		char* name; /*NAME*/
 	} parameters_node;
@@ -61,6 +63,7 @@ typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCO
 
 	typedef struct sentence_node{
 		enum productions production;
+		struct type_node * type; 
 		struct declaration_node * declaration;
 		struct variable_opration_node *variable_opration;
 		struct for_node *for_node;

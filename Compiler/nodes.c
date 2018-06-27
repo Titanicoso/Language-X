@@ -58,6 +58,14 @@ new_define_node(enum productions production, char*name, int value, char* string_
 	return node;
 }
 
+type_node*
+new_type_node(basicTypes basicTypes, compoundTypes compoundType){
+	type_node * node = malloc(sizeof(type_node)); 
+
+	node -> basicTypes = basicTypes; 
+	node -> compoundType = compoundType; 
+}
+
 functions_node*
 new_functions_node(function_node * function, functions_node * next){
 	functions_node * node = malloc(sizeof(functions_node));
@@ -69,7 +77,7 @@ new_functions_node(function_node * function, functions_node * next){
 }
 
 function_node*
-new_function_node(char* name, parameters_node * parameters, sentences_node * sentences){
+new_function_node(type_node * type, char* name, parameters_node * parameters, sentences_node * sentences){
 
 	function_node * node = malloc(sizeof(function_node));
 	char * name_aux = malloc(strlen(name) + 1);
@@ -77,6 +85,7 @@ new_function_node(char* name, parameters_node * parameters, sentences_node * sen
 	if(!renameCurrent(name_aux)) {
 		error(FUNCTION_REPETITION_ERROR);
 	}
+	node -> type = type; 
 	node -> parameters = parameters;
 	node -> sentences = sentences;
 	node -> name = name_aux;
@@ -85,7 +94,7 @@ new_function_node(char* name, parameters_node * parameters, sentences_node * sen
 }
 
 parameters_node*
-new_parameters_node(char*name, parameters_node * next){
+new_parameters_node(type_node * type, char*name, parameters_node * next){
 
 	parameters_node * node = malloc(sizeof(parameters_node));
 	char * name_aux = malloc(strlen(name) + 1);
@@ -94,6 +103,7 @@ new_parameters_node(char*name, parameters_node * next){
 	if(!addParameterToFunction(name_aux)){
 		error(VARIABLE_REPETITION);
 	}else{
+		node -> type = type; 
 		node -> name = name_aux;
 		if(next != NULL){
 			node -> next = next;
@@ -121,13 +131,14 @@ new_sentences_node(sentence_node * sentence, sentences_node * sentences){
 }
 
 sentence_node*
-new_sentence_node(enum productions production, variable_opration_node * variable_operation,  char* sentenceEnd,
+new_sentence_node(enum productions production, type_node * type, variable_opration_node * variable_operation,  char* sentenceEnd,
 	for_node * for_node, while_node * while_node, if_node * if_node,
 	function_execute_node* function_execute, return_node*return_node){
 
 	sentence_node * node = malloc(sizeof(sentence_node));
 
 	node -> production = production;
+	node -> type = type; 
 	node -> variable_opration = variable_operation;
 	node -> for_node = for_node;
 	node -> while_node = while_node;
@@ -145,6 +156,18 @@ new_sentence_node(enum productions production, variable_opration_node * variable
 	}
 
 	return node;
+}
+
+declaration_node * 
+new_declaration_node(type_node * type, char * name){
+
+	declaration_node * node = malloc(sizeof(declaration_node)); 
+	char * name_aux = malloc(strlen(name) + 1); 
+	strcpy(name_aux, name); 
+
+	node -> type = type; 
+	node -> name = name_aux; 
+
 }
 
 variable_opration_node*

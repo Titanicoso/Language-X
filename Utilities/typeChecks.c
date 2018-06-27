@@ -153,22 +153,20 @@ variableNode * getVariableFromList(char * name, variableList * list) {
   return NULL;
 }
 
-int existsVariableTyped(char * name, basicTypes basic) {
+int existsVariableTyped(char * name, basicTypes basic, compoundTypes compound) {
   variableNode * ret = getVariableFromList(name, current->arguments);
   if(ret != NULL) {
-    if(ret->basic == basic) {
-      ret->basic = basic;
-      return TYPE_DEFINED;
+    if(ret->basic != basic || ret->compound != compound) {
+      return -1;
     }
-    return INCOMPATIBLE_DEFINITION;
+    return 1;
   }
   ret = getVariableFromList(name, current->variables);
   if(ret != NULL) {
-    if(ret->basic == basic) {
-      ret->basic = basic;
-      return TYPE_DEFINED;
+    if(ret->basic != basic || ret->compound != compound) {
+      return -1;
     }
-    return INCOMPATIBLE_DEFINITION;
+    return 1;
   }
   return 0;
 }

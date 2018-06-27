@@ -213,8 +213,11 @@ new_assignment_node(enum productions production, char * name,
 		node -> queue_stack = NULL;
 		node -> assignment_operation = NULL;
 		node -> expression = NULL;
-		if(!addVariable(name_aux, STRING, STRING))
+		int exists = existsVariableTyped(name_aux, STRING, NONE);
+		if(exists == -1)
 			error(INCOMPATIBLE_TYPE);
+		else if(exists == 0)
+			error(VARIABLE_NOT_DEFINED);
 	}else if(production == ASSIGNMENT_QUEUE || production == ASSIGNMENT_STACK){
 
 		node -> string = NULL;

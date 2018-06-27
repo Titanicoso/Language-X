@@ -60,7 +60,7 @@ variableNode * getVariable(char * name, functionNode * function);
 
 variableNode * getVariableFromList(char * name, variableList * list);
 
-int existsVariableTyped(char * name, basicTypes basic);
+int existsVariableTyped(char * name, basicTypes basic, compoundTypes compound);
 
 int existsVariable(char * name);
 

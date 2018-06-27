@@ -106,7 +106,7 @@ BasicType: INTEGER_TYPE {$$ = INTEGER_T;}
 CompoundType: OPEN_BRACKET BasicType CLOSE_BRACKET {$$ = new_type_node($2, QUEUE_T);}
 			| LESS_THAN BasicType GREATER_THAN {$$ = new_type_node($2, STACK_T);}
 
-Type: BasicType {$$ = new_type_node($1, $1);}
+Type: BasicType {$$ = new_type_node($1, NONE);}
 		| CompoundType {$$ = $1;}
 
 Main: Type MAIN OPEN_PARENTHESES CLOSE_PARENTHESES OPEN_CURLY_BRACES Block CLOSE_CURLY_BRACES	{$$ = new_function_node($1, "main", NULL, $6); }

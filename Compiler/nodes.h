@@ -12,7 +12,7 @@ enum productions
 
 typedef enum {INTEGER_T, BOOLEAN_T, STRING_T} basicTypes;
 
-typedef enum {QUEUE_T = 4, STACK_T} compoundTypes;
+typedef enum {QUEUE_T = 4, STACK_T, NONE} compoundTypes;
 
 typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCOMPATIBLE_TYPE, VARIABLE_NOT_DEFINED, ERROR_ARGUMENTS} errorType;
 

@@ -35,9 +35,11 @@ functionList * getFunctionList();
 
 int functionExists(char * name);
 
-void createFunction(char * name);
+functionNode * createFunction();
 
-void addToList(functionNode * function, functionList * list);
+int renameCurrent(char * name);
+
+void addToList(functionNode * function, functionList ** list);
 
 int addReturn(variableType type);
 

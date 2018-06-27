@@ -6,7 +6,7 @@
 
 functionList * functions = NULL;
 variableList * defines;
-functionNode * current;
+functionNode * current = NULL;
 
 functionList * getFunctionList() {
   return functions;
@@ -16,30 +16,41 @@ int functionExists(char * name) {
   return getFunction(name) != NULL;
 }
 
-void createFunction(char * name) {
-	if(functionExists(name)) {
-		error();
-	}
-
-	functionNode * function = malloc(sizeof(functionNode));
-	function->name = malloc(strlen(name) + 1);
-	strcpy(function->name, name);
+functionNode * createFunction() {
+  functionNode * function = malloc(sizeof(functionNode));
 	function->returnType = UNKNOWN;
 	function->arguments = NULL;
 	function->variables = NULL;
-
-	addToList(function, functions);
-	current = function;
+  current = function;
+  return function;
 }
 
-void addToList(functionNode * function, functionList * list) {
+int renameCurrent(char * name) {
+  if(functionExists(name)) {
+		return 0;
+	}
+  current->name = malloc(strlen(name) + 1);
+  strcpy(current->name, name);
+
+  if(strcmp(name, "main") == 0) {
+    current->returnType = INTEGER;
+  }
+  addToList(current, &functions);
+  current = createFunction();
+  return 1;
+}
+
+void addToList(functionNode * function, functionList ** list) {
   functionList * node = malloc(sizeof(functionList));
   node->function = function;
-  node->next = list;
-	list = node;
+  node->next = *list;
+	*list = node;
 }
 
 int addReturn(variableType type) {
+  if(current == NULL) {
+    current = createFunction();
+  }
   if(current->returnType != UNKNOWN && current->returnType != type)
     return 0;
   current->returnType = type;
@@ -47,6 +58,9 @@ int addReturn(variableType type) {
 }
 
 int addParameterToFunction(char * name) {
+  if(current == NULL) {
+    current = createFunction();
+  }
   if(parameterExists(name))
     return 0;
 
@@ -66,6 +80,9 @@ void addToDefines(char * name, variableType type) {
 }
 
 int existsDefine(char * name) {
+  if(current == NULL) {
+    current = createFunction();
+  }
   variableNode * ret = getVariableFromList(name, defines);
   if(ret != NULL)
     return 1;
@@ -82,6 +99,9 @@ variableNode * createVariable(char * name, variableType type, variableType eleme
 }
 
 int addVariable(char * name, variableType type) {
+  if(current == NULL) {
+    current = createFunction();
+  }
   int exists = existsVariableTyped(name, type);
   if(exists == TYPE_DEFINED) {
     return 1;
@@ -158,6 +178,9 @@ int existsVariableTyped(char * name, variableType type) {
 }
 
 int existsVariable(char * name) {
+  if(current == NULL) {
+    current = createFunction();
+  }
   variableNode * ret = getVariableFromList(name, current->arguments);
   if(ret != NULL)
     return 1;

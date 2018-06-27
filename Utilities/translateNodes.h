@@ -8,8 +8,6 @@
 #include "translateNodes.h"
 #include "typeChecks.h"
 
-FILE * test();
-
 void translateProgramNode(program_node * program);
 
 void translateType(variableType type);

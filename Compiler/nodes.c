@@ -30,7 +30,7 @@ new_defines_node(define_node * define, defines_node * next){
 define_node*
 new_define_node(enum productions production, char*name, int value, char* string_name){
 
-	char * name_aux = malloc(sizeof(name));
+	char * name_aux = malloc(strlen(name) + 1);
 	define_node * node = NULL;
 	strcpy(name_aux, name);
 
@@ -46,7 +46,7 @@ new_define_node(enum productions production, char*name, int value, char* string_
 			node -> value = value;
 		}else if(production == DEFINE_STRING){
 			node -> value = 0;
-			char* string_name_aux = malloc(sizeof(string_name));
+			char* string_name_aux = malloc(strlen(string_name) + 1);
 			strcpy(string_name_aux, string_name);
 			node -> string_name = string_name_aux;
 		}else{
@@ -73,12 +73,15 @@ function_node*
 new_function_node(char* name, parameters_node * parameters, sentences_node * sentences){
 
 	function_node * node = malloc(sizeof(function_node));
-	char * name_aux = malloc(sizeof(name) + 1);
+	char * name_aux = malloc(strlen(name) + 1);
 	strcpy(name_aux, name);
+	if(!renameCurrent(name_aux)) {
+		error();
+	}
+	node -> parameters = parameters;
+	node -> sentences = sentences;
+	node -> name = name_aux;
 
-		node -> parameters = parameters;
-		node -> sentences = sentences;
-		node -> name = name_aux;
 	return node; /*total la idea es que el error() se encargue de terminar antes si es necesario*/
 }
 
@@ -86,7 +89,7 @@ parameters_node*
 new_parameters_node(char*name, parameters_node * next){
 
 	parameters_node * node = malloc(sizeof(parameters_node));
-	char * name_aux = malloc(sizeof(name));
+	char * name_aux = malloc(strlen(name) + 1);
 	strcpy(name_aux, name);
 
 	if(!addParameterToFunction(name_aux)){
@@ -147,10 +150,8 @@ new_sentence_node(enum productions production, variable_opration_node * variable
 
 variable_opration_node*
 new_variable_opration_node(enum productions production, assignment_node * assignment, char * increment_decrement_name){
-
 	variable_opration_node * node = malloc(sizeof(variable_opration_node));
-	char * name_aux = malloc(sizeof(increment_decrement_name));
-	strcpy(name_aux, increment_decrement_name);
+	char * name_aux;
 
 	node -> production = production;
 	if(production == VARIABLE_ASSIGNMENT) {
@@ -158,6 +159,7 @@ new_variable_opration_node(enum productions production, assignment_node * assign
 		node -> increment_decrement_name = NULL;
 	}else if(production == VARIABLE_INCREMENT || production == VARIABLE_DECREMENT){
 		node -> assignment == NULL;
+		name_aux = malloc(strlen(increment_decrement_name) + 1);
 		node -> increment_decrement_name = name_aux;
 		if(!existsVariable(name_aux))
 			error();
@@ -180,7 +182,7 @@ new_assignment_node(enum productions production, char * name,
 
 	if(production == ASSIGNMENT_STRING){
 		/*solo lo creo si lo necesito, si no directamente, null*/
-		char * string_aux = malloc(sizeof(string));
+		char * string_aux = malloc(strlen(string) + 1);
 		strcpy(string_aux, string);
 		node -> string = string_aux;
 		node -> queue_stack = NULL;
@@ -201,7 +203,7 @@ new_assignment_node(enum productions production, char * name,
 		node -> string = NULL;
 		node -> queue_stack = NULL;
 
-		char * assignment_operation_aux = malloc(sizeof(assignment_operation));
+		char * assignment_operation_aux = malloc(strlen(assignment_operation) + 1);
 		strcpy(assignment_operation_aux, assignment_operation);
 		node -> assignment_operation = assignment_operation_aux;
 
@@ -248,7 +250,7 @@ new_element_node(enum productions production, int value, char * string_name){
 		node -> string_name = NULL;
 	}else if(production == ELEMENT_STRING || production == ELEMENT_VARIABLE){
 		node -> value = 0;
-		char * string_name_aux = malloc(sizeof(string_name));
+		char * string_name_aux = malloc(strlen(string_name) + 1);
 		strcpy(string_name_aux, string_name);
 		node -> string_name = string_name_aux;
 	}else{
@@ -312,11 +314,11 @@ new_for_node(enum productions production, assignment_node *assignment, condition
 		node -> variable_operation = NULL;
 		node -> sentences = sentences;
 
-		char * variable_aux = malloc(sizeof(variable));
+		char * variable_aux = malloc(strlen(variable) + 1);
 		strcpy(variable_aux, variable);
 		node -> variable = variable_aux;
 
-		char * structure_aux = malloc(sizeof(structure));
+		char * structure_aux = malloc(strlen(structure) + 1);
 		strcpy(structure_aux, structure);
 		node -> structure = structure_aux;
 	}else{
@@ -337,7 +339,7 @@ new_condition_node(enum productions production, expression_node *expression_1, c
 	if(production == CONDITION_LOGICAL){
 		node -> expression_1 = expression_1;
 
-		char * logical_operation_aux = malloc(sizeof(logical_operation));
+		char * logical_operation_aux = malloc(strlen(logical_operation) + 1);
 		strcpy(logical_operation_aux, logical_operation);
 		node -> logical_operation = logical_operation_aux;
 
@@ -389,7 +391,7 @@ new_expression_node(enum productions production,
 		}else if(production == EXPRESSION_VARIABLE){
 			node -> boolean_number = 0;
 
-			char * name_aux = malloc(sizeof(name));
+			char * name_aux = malloc(strlen(name) + 1);
 			strcpy(name_aux, name);
 			node -> name = name_aux;
 		}else{
@@ -408,7 +410,7 @@ function_execute_node*
 new_function_execute_node(char * name, call_parameters_node * parameters){
 
 	function_execute_node * node = malloc(sizeof(function_execute_node));
-	char * name_aux = malloc(sizeof(name));
+	char * name_aux = malloc(strlen(name) + 1);
 	strcpy(name_aux, name);
 
 	node -> name = name_aux;
@@ -437,7 +439,7 @@ new_call_parameter_node(enum productions production,
 	node -> production = production;
 
 	if(production == PARAMERER_STRING){
-		char * string_aux = malloc(sizeof(string));
+		char * string_aux = malloc(strlen(string) + 1);
 		strcpy(string_aux, string);
 		node -> string = string_aux;
 		node -> expression = NULL;
@@ -463,7 +465,7 @@ new_return_node(enum productions production,
 		node -> string = NULL;
 		node -> expression = expression;
 	}else if(production == RETURN_STRING){
-		char*string_aux = malloc(sizeof(string));
+		char*string_aux = malloc(strlen(string) + 1);
 		strcpy(string_aux, string);
 		node -> string = string_aux;
 		node -> expression = NULL;

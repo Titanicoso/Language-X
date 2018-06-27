@@ -8,17 +8,6 @@
 static FILE* file = NULL;
 functionNode* funCurrent = NULL;
 
-FILE * test() {
-  file = fopen("../Compiler/compiled.c", "w+");
-	if (file != NULL)	{
-	  fprintf(file,"#include <stdio.h>\n");
-	  fprintf(file,"#include <stdlib.h>\n");
-	  fprintf(file,"#include <string.h>\n");
-	  fprintf(file,"#include \"../Utilities/linkedList.h\"\n\n");
-  }
-  return file;
-}
-
 void translateProgramNode(program_node * program) {
   file = fopen("../Compiler/compiled.c", "w+");
 	if (file != NULL)	{
@@ -28,8 +17,9 @@ void translateProgramNode(program_node * program) {
 	  fprintf(file,"#include \"../Utilities/linkedList.h\"\n\n");
 
     translateDefines(program->defines);
-
+    fprintf(file, "\n");
     translateFunctionDefinitions(getFunctionList());
+    fprintf(file, "\n");
 
     translateFunctions(program->functions);
 
@@ -54,7 +44,7 @@ void translateDefines(defines_node * defines) {
     fprintf(file, "#define %s ", define->name);
     switch (define->production) {
       case DEFINE_INTEGER: fprintf(file, "%d\n", define->value); break;
-      case DEFINE_STRING: fprintf(file, "\"%s\"\n", define->string_name); break;
+      case DEFINE_STRING: fprintf(file, "%s\n", define->string_name); break;
     }
     next = next->next;
   }
@@ -263,7 +253,7 @@ void translateCallParameters(call_parameters_node * parameters) {
 
 void translateCallParameter(call_parameter_node * parameter) {
   if(parameter->production == PARAMERER_STRING) {
-    fprintf(file, "\"%s\"", parameter->string);
+    fprintf(file, "%s", parameter->string);
   } else {
     translateExpression(parameter->expression);
   }
@@ -283,8 +273,8 @@ void translateVariableOperation(sentence_node * sentence) {
 
 void translateAssignment(assignment_node * assignment) {
   switch (assignment->production) {
-    case ASSIGNMENT_STRING: fprintf(file, "%s = malloc(strlen(\"%s\") + 1);\n", assignment->name, assignment->string);
-                            fprintf(file, "strcpy(%s, \"%s\");\n", assignment->name, assignment->string); break;
+    case ASSIGNMENT_STRING: fprintf(file, "%s = malloc(strlen(%s) + 1);\n", assignment->name, assignment->string);
+                            fprintf(file, "strcpy(%s, %s);\n", assignment->name, assignment->string); break;
     case ASSIGNMENT_QUEUE: case ASSIGNMENT_STACK: translateQueueStack(assignment); break;
     case ASSIGNMENT_EXPRESSION: fprintf(file, "%s %s ", assignment->name, assignment->assignment_operation);
                                 translateExpression(assignment->expression);
@@ -313,7 +303,7 @@ void translateElementList(assignment_node * assignment) {
     }
 
     switch (element->production) {
-      case ELEMENT_STRING: fprintf(file, "\"%s\", strlen(\"%s\") + 1);\n", element->string_name, element->string_name); break;
+      case ELEMENT_STRING: fprintf(file, "%s, strlen(%s) + 1);\n", element->string_name, element->string_name); break;
       case ELEMENT_VARIABLE: variable = getVariable(element->string_name, funCurrent);
                             if(variable->type == STRING)
                               fprintf(file, "%s, strlen(%s) + 1);\n", element->string_name, element->string_name);
@@ -330,7 +320,7 @@ void translateReturn(sentence_node * sentence) {
   fprintf(file, "return ");
   return_node * returnNode = sentence->return_node;
   if(returnNode->production == RETURN_STRING) {
-    fprintf(file, "\"%s\"", returnNode->string);
+    fprintf(file, "%s", returnNode->string);
   } else {
     translateExpression(returnNode->expression);
   }

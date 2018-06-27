@@ -33,8 +33,32 @@ typedef struct functionList {
 
 functionList * getFunctionList();
 
+void createFunction(char * name);
+
+void addToList(functionNode * function, functionList * list);
+
+int addReturn(variableType type);
+
+int addParameterToFunction(char * name);
+
+void addToDefines(char * name, variableType type);
+
+int existsDefine(char * name);
+
+variableNode * createVariable(char * name, variableType type, variableType elementType);
+
+int addVariable(char * name, variableType type);
+
+int parameterExists(char * name);
+
 functionNode * getFunction(char * name);
 
 variableNode * getVariable(char * name, functionNode * function);
+
+variableNode * getVariableFromList(char * name, variableList * list);
+
+int existsVariableTyped(char * name, variableType type);
+
+int existsVariable(char * name);
 
 #endif

@@ -1,4 +1,5 @@
 #include "nodes.h"
+#include "../Utilities/typeChecks.h"
 
 program_node*
 new_program_node(defines_node * defines, 

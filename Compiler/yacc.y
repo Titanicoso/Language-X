@@ -196,7 +196,7 @@ CallParameters: CallParameter {$$ = new_call_parameters_node($1, NULL); }
 CallParameter: STRING {$$ = new_call_parameter_node(PARAMERER_STRING, $1, NULL); }
 				| Expression {$$ = new_call_parameter_node(PARAMETER_EXPRESSION, NULL, $1);}
 
-Return: RETURN Expression {$$ = new_return_node(RETURN_EXPRESSION, NULL, $1); }
+Return: RETURN Expression {$$ = new_return_node(RETURN_EXPRESSION, NULL, $2); }
 			| RETURN STRING {$$ = new_return_node(RETURN_STRING, $2, NULL); }
 
 %%

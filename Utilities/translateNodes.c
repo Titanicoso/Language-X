@@ -30,7 +30,7 @@ void translateProgramNode(program_node * program) {
 
 void translateType(variableType type) {
   switch (type) {
-    case BOOLEAN: case INTEGER: fprintf(file, "int "); break;
+    case BOOLEAN: case INTEGER: case UNKNOWN: fprintf(file, "int "); break;
     case STRING: fprintf(file, "char * "); break;
     case VOID: fprintf(file, "void"); break;
     case QUEUE: case STACK: fprintf(file, "listADT "); break;
@@ -89,7 +89,7 @@ void translateFunctions(functions_node * functions) {
     fprintf(file, " {\n");
     declareVariables(fun->variables);
     translateSentences(function->sentences);
-    fprintf(file, "}\n");
+    fprintf(file, "}\n\n");
     next = next->next;
   }
 }
@@ -342,10 +342,10 @@ void translateSentenceEnd(sentence_node * sentence) {
     variableNode * variable = getVariable(var, funCurrent);
 
     switch (variable->type) {
-      case STRING: fprintf(file, "printf(\"%%s\\n\", %s)", var); break;
-      case BOOLEAN: case INTEGER: fprintf(file, "printf(\"%%d\\n\", %s)", var); break;
-      case QUEUE: fprintf(file, "printf(\"Queue\n\")"); break;
-      case STACK: fprintf(file, "printf(\"Stack\n\")"); break;
+      case STRING: fprintf(file, "printf(\"%%s\\n\", %s);\n", var); break;
+      case BOOLEAN: case INTEGER: fprintf(file, "printf(\"%%d\\n\", %s);\n", var); break;
+      case QUEUE: fprintf(file, "printf(\"Queue\n\");\n"); break;
+      case STACK: fprintf(file, "printf(\"Stack\n\");\n"); break;
     }
   }
 }

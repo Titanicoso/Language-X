@@ -35,7 +35,7 @@ new_define_node(enum productions production, char*name, int value, char* string_
 	strcpy(name_aux, name);
 
 	if(existsDefine(name_aux)){
-		error();
+		error(VARIABLE_REPETITION);
 	}else{
 
 		node = malloc(sizeof(define_node));
@@ -50,7 +50,7 @@ new_define_node(enum productions production, char*name, int value, char* string_
 			strcpy(string_name_aux, string_name);
 			node -> string_name = string_name_aux;
 		}else{
-			error();
+			error(INCOMPATIBLE);
 		}
 	}
 	addToDefines(name_aux, production == DEFINE_INTEGER? INTEGER : STRING);
@@ -60,7 +60,6 @@ new_define_node(enum productions production, char*name, int value, char* string_
 
 functions_node*
 new_functions_node(function_node * function, functions_node * next){
-
 	functions_node * node = malloc(sizeof(functions_node));
 
 	node -> function = function;
@@ -76,7 +75,7 @@ new_function_node(char* name, parameters_node * parameters, sentences_node * sen
 	char * name_aux = malloc(strlen(name) + 1);
 	strcpy(name_aux, name);
 	if(!renameCurrent(name_aux)) {
-		error();
+		error(FUNCTION_REPETITION_ERROR);
 	}
 	node -> parameters = parameters;
 	node -> sentences = sentences;
@@ -93,7 +92,7 @@ new_parameters_node(char*name, parameters_node * next){
 	strcpy(name_aux, name);
 
 	if(!addParameterToFunction(name_aux)){
-		error();
+		error(VARIABLE_REPETITION);
 	}else{
 		node -> name = name_aux;
 		if(next != NULL){
@@ -137,7 +136,7 @@ new_sentence_node(enum productions production, variable_opration_node * variable
 	node -> return_node = return_node;
 
 	if(sentenceEnd != NULL && *sentenceEnd !=';'){
-		error();
+		error(INCOMPATIBLE);
 	}else{
 		if(sentenceEnd == NULL)
 			node -> sentenceEnd = '\0';
@@ -162,9 +161,9 @@ new_variable_opration_node(enum productions production, assignment_node * assign
 		name_aux = malloc(strlen(increment_decrement_name) + 1);
 		node -> increment_decrement_name = name_aux;
 		if(!existsVariable(name_aux))
-			error();
+			error(VARIABLE_REPETITION);
 	}else{
-		error();
+		error(INCOMPATIBLE);
 	}
 	return node;
 }
@@ -175,7 +174,8 @@ new_assignment_node(enum productions production, char * name,
 	expression_node * expression){
 
 	assignment_node * node = malloc(sizeof(assignment_node));
-	char * name_aux = malloc(sizeof(name));
+	char * name_aux = malloc(strlen(name) + 1);
+	strcpy(name_aux, name);
 
 	node -> production = production;
 	node -> name = name_aux;
@@ -189,7 +189,7 @@ new_assignment_node(enum productions production, char * name,
 		node -> assignment_operation = NULL;
 		node -> expression = NULL;
 		if(!addVariable(name_aux, STRING))
-			error();
+			error(VARIABLE_REPETITION);
 	}else if(production == ASSIGNMENT_QUEUE || production == ASSIGNMENT_STACK){
 
 		node -> string = NULL;
@@ -197,7 +197,7 @@ new_assignment_node(enum productions production, char * name,
 		node -> assignment_operation = NULL;
 		node -> expression = NULL;
 		if(!addVariable(name_aux, production == ASSIGNMENT_QUEUE? QUEUE: STACK))
-			error();
+			error(VARIABLE_REPETITION);
 	}else if(production == ASSIGNMENT_EXPRESSION){
 
 		node -> string = NULL;
@@ -208,10 +208,13 @@ new_assignment_node(enum productions production, char * name,
 		node -> assignment_operation = assignment_operation_aux;
 
 		node -> expression = expression;
-		//if(!addVariable(name_aux, getExpressionType(expression)))
-		//	error();
+		if(assignment_operation[0] != '=' && !existsVariable(name_aux)) {
+			error(VARIABLE_NOT_DEFINED);
+		}
+		else if(assignment_operation[0] == '=' && !addVariable(name_aux, UNKNOWN))
+			error(VARIABLE_REPETITION);
 	}else {
-		error();
+		error(INCOMPATIBLE);
 	}
 
 	return node;
@@ -254,7 +257,7 @@ new_element_node(enum productions production, int value, char * string_name){
 		strcpy(string_name_aux, string_name);
 		node -> string_name = string_name_aux;
 	}else{
-		error();
+		error(INCOMPATIBLE);
 	}
 
 	return node;
@@ -322,7 +325,7 @@ new_for_node(enum productions production, assignment_node *assignment, condition
 		strcpy(structure_aux, structure);
 		node -> structure = structure_aux;
 	}else{
-		error();
+		error(INCOMPATIBLE);
 	}
 
 	return node;
@@ -358,7 +361,7 @@ new_condition_node(enum productions production, expression_node *expression_1, c
 		node -> expression_2 = NULL;
 		node -> condition = condition;
 	}else{
-		error();
+		error(INCOMPATIBLE);
 	}
 	return node;
 }
@@ -369,7 +372,6 @@ new_expression_node(enum productions production,
 		char op, expression_node *expression_2,
 		function_execute_node *function_execute,
 		int boolean_number, char * name){
-
 	expression_node * node = malloc(sizeof(expression_node));
 
 	node -> production = production;
@@ -400,9 +402,8 @@ new_expression_node(enum productions production,
 			node -> function_execute = function_execute;
 		}
 	}else{
-		error();
+		error(INCOMPATIBLE);
 	}
-
 	return node;
 }
 
@@ -447,7 +448,7 @@ new_call_parameter_node(enum productions production,
 		node -> string = NULL;
 		node -> expression = expression;
 	}else{
-		error();
+		error(INCOMPATIBLE);
 	}
 
 	return node;
@@ -470,15 +471,21 @@ new_return_node(enum productions production,
 		node -> string = string_aux;
 		node -> expression = NULL;
 		if(!addReturn(STRING))
-			error();
+			error(INCOMPATIBLE_TYPE);
 	}else{
-		error();
+		error(INCOMPATIBLE);
 	}
 
 	return node;
 }
 
-void error() {
-	printf("ERROR\n");
+void error(errorType type) {
+	switch (type) {
+		case FUNCTION_REPETITION_ERROR: printf("Error, function defined more than once\n"); break;
+		case INCOMPATIBLE: printf("Error, incompatible operation\n"); break;
+		case INCOMPATIBLE_TYPE: printf("Error, incompatible types found\n"); break;
+		case VARIABLE_REPETITION: printf("Error, variable name used more than once\n"); break;
+		case VARIABLE_NOT_DEFINED: printf("Error, variable operation on not assigned variable\n"); break;
+	}
 	exit(1);
 }

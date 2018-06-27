@@ -10,6 +10,8 @@ enum productions
 	RETURN_STRING, RETURN_EXPRESSION
 };
 
+typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCOMPATIBLE_TYPE, VARIABLE_NOT_DEFINED} errorType;
+
 	typedef struct program_node{
 		struct defines_node * defines;
 		struct functions_node * functions;
@@ -204,6 +206,6 @@ call_parameter_node* new_call_parameter_node(enum productions production,	char* 
 return_node *	new_return_node(enum productions production, char* string,
 		expression_node *expression);
 
-void error();
+void error(errorType type);
 
 #endif

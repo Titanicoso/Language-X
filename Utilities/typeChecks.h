@@ -4,8 +4,6 @@
 #define TYPE_DEFINED 2
 #define INCOMPATIBLE_DEFINITION 1
 
-typedef enum {FUNCTION_REPETITION_ERROR} errorType;
-
 typedef enum {BOOLEAN, STRING, QUEUE, STACK, INTEGER, VOID, UNKNOWN} variableType;
 
 typedef struct {

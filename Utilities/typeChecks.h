@@ -64,4 +64,6 @@ int existsVariableTyped(char * name, basicTypes basic);
 
 int existsVariable(char * name);
 
+int getFunctionParameterCount(functionNode * function);
+
 #endif

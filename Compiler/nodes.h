@@ -14,7 +14,7 @@ typedef enum {INTEGER_T, BOOLEAN_T, STRING_T} basicTypes;
 
 typedef enum {QUEUE_T = 4, STACK_T} compoundTypes;
 
-typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCOMPATIBLE_TYPE, VARIABLE_NOT_DEFINED} errorType;
+typedef enum {FUNCTION_REPETITION_ERROR, VARIABLE_REPETITION, INCOMPATIBLE, INCOMPATIBLE_TYPE, VARIABLE_NOT_DEFINED, ERROR_ARGUMENTS} errorType;
 
 	typedef struct program_node{
 		struct defines_node * defines;

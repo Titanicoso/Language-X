@@ -270,7 +270,10 @@ void translateFunctionCall(sentence_node * sentence) {
     }
   }
   fprintf(file, "%s(", function->name);
-  translateCallParameters(function->parameters);
+  if(translateCallParameters(function->parameters) != getFunctionParameterCount(fun)) {
+    error(ERROR_ARGUMENTS);
+  }
+
   fprintf(file, ")");
   if(sentence->sentenceEnd != ';') {
     if(fun->compound == QUEUE_T || fun->compound == STACK_T) {
@@ -285,7 +288,8 @@ void translateFunctionCall(sentence_node * sentence) {
   fprintf(file, ";\n");
 }
 
-void translateCallParameters(call_parameters_node * parameters) {
+int translateCallParameters(call_parameters_node * parameters) {
+  int i = 0;
   call_parameters_node * next = parameters;
   while(next != NULL) {
     call_parameter_node * parameter = next->parameter;
@@ -293,7 +297,9 @@ void translateCallParameters(call_parameters_node * parameters) {
     next = next->next;
     if(next != NULL)
       fprintf(file, ", ");
+    i++;
   }
+  return i;
 }
 
 void translateCallParameter(call_parameter_node * parameter) {

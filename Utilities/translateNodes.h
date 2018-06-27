@@ -52,7 +52,7 @@ void translateWhile(while_node * whileNode);
 
 void translateFunctionCall(sentence_node * sentence);
 
-void translateCallParameters(call_parameters_node * parameters);
+int translateCallParameters(call_parameters_node * parameters);
 
 void translateCallParameter(call_parameter_node * parameter);
 

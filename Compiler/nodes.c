@@ -511,6 +511,7 @@ void error(errorType type) {
 		case INCOMPATIBLE_TYPE: printf("Error, incompatible types found\n"); break;
 		case VARIABLE_REPETITION: printf("Error, variable name used more than once\n"); break;
 		case VARIABLE_NOT_DEFINED: printf("Error, variable operation on not assigned variable\n"); break;
+		case ERROR_ARGUMENTS: printf("Error, wrong arguments for function\n"); break;
 	}
 	exit(1);
 }

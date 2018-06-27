@@ -183,3 +183,14 @@ int existsVariable(char * name) {
   ret = getVariableFromList(name, current->variables);
   return ret != NULL;
 }
+
+int getFunctionParameterCount(functionNode * function) {
+  int i = 0;
+  variableList * next = function->arguments;
+  while(next != NULL) {
+    variableNode * variable = next->variable;
+    i++;
+    next = next->next;
+  }
+  return i;
+}

@@ -28,12 +28,14 @@ void translateProgramNode(program_node * program) {
     perror("Output file error\n");
 }
 
-void translateType(variableType type) {
-  switch (type) {
-    case BOOLEAN: case INTEGER: case UNKNOWN: fprintf(file, "int "); break;
-    case STRING: fprintf(file, "char * "); break;
-    case VOID: fprintf(file, "void"); break;
-    case QUEUE: case STACK: fprintf(file, "listADT "); break;
+void translateType(basicTypes basic, compoundTypes compound) {
+  if(compound == QUEUE_T || compound == STACK_T) {
+    fprintf(file, "listADT ");
+    return;
+  }
+  switch (basic) {
+    case BOOLEAN_T: case INTEGER_T: fprintf(file, "int "); break;
+    case STRING_T: fprintf(file, "char * "); break;
   }
 }
 
@@ -61,7 +63,7 @@ void translateFunctionDefinitions(functionList * functions) {
 }
 
 void translateFunctionDefinition(functionNode * function) {
-  translateType(function->returnType);
+  translateType(function->basic, function->compound);
   fprintf(file, "%s(", function->name);
   translateParameters(function->arguments);
   fprintf(file, ")");
@@ -71,7 +73,7 @@ void translateParameters(variableList * arguments) {
   variableList * next = arguments;
   while(next != NULL) {
     variableNode * variable = next->variable;
-    translateType(variable->type);
+    translateType(variable->basic, variable->compound);
     fprintf(file, "%s", variable->name);
     next = next->next;
     if(next != NULL)
@@ -98,7 +100,7 @@ void declareVariables(variableList * variables) {
   variableList * next = variables;
   while(next != NULL) {
     variableNode * variable = next->variable;
-    translateType(variable->type);
+    translateType(variable->basic, variable->compound);
     fprintf(file, "%s;\n", variable->name);
     next = next->next;
   }
@@ -128,7 +130,7 @@ void translateSentence(sentence_node * sentence) {
 void translateDeclaration(sentence_node * sentence) {
   declaration_node * declaration = sentence->declaration;
   variableNode * variable = getVariable(declaration->name, funCurrent);
-  translateType(variable->type);
+  translateType(variable->basic, variable->compound);
   fprintf(file, "%s;\n", variable->name);
   translateSentenceEnd(sentence);
 }
@@ -202,11 +204,10 @@ void translateFor(for_node * forNode) {
     fprintf(file, "}\n");
     return;
   }
-  if(!isIterable(forNode->structure))
-    error(INCOMPATIBLE_TYPE);
+
   variableNode * variable = getVariable(forNode->structure, funCurrent);
   fprintf(file, "while(!isEmpty(%s)) {\n", forNode->structure);
-  fprintf(file, "%s = ", variable->name);
+  fprintf(file, "%s = ", forNode->variable);
   translateQueueStackOperations(variable, 0);
   fprintf(file, ");\n");
   translateSentences(forNode->sentences);
@@ -215,19 +216,19 @@ void translateFor(for_node * forNode) {
 
 void translateQueueStackOperations(variableNode * structure, int add) {
   char * aux;
-  if(structure->elementType == BOOLEAN || structure->elementType == INTEGER)
+  if(structure->basic == BOOLEAN_T || structure->basic == INTEGER_T)
     aux = "Int";
   if(add) {
-    if(structure->type == QUEUE) {
+    if(structure->compound == QUEUE_T) {
       fprintf(file, "queue%s(%s, ", aux, structure->name);
     } else {
       fprintf(file, "push%s(%s, ", aux, structure->name);
     }
   } else {
-    if(structure->type == QUEUE) {
-      fprintf(file, "dequeue%s(%s)", aux, structure->name);
+    if(structure->compound == QUEUE_T) {
+      fprintf(file, "dequeue%s(%s", aux, structure->name);
     } else {
-      fprintf(file, "pop%s(%s)", aux, structure->name);
+      fprintf(file, "pop%s(%s", aux, structure->name);
     }
   }
 }
@@ -253,19 +254,22 @@ void translateFunctionCall(sentence_node * sentence) {
   function_execute_node * function = sentence->function_execute;
   functionNode * fun = getFunction(function->name);
   if(sentence->sentenceEnd != ';') {
-    switch (fun->returnType) {
-      case STRING: fprintf(file, "printf(\"%%s\\n\", "); break;
-      case BOOLEAN: case INTEGER: fprintf(file, "printf(\"%%d\\n\", "); break;
+    switch (fun->basic) {
+      case STRING_T: fprintf(file, "printf(\"%%s\\n\", "); break;
+      case BOOLEAN_T: case INTEGER_T: fprintf(file, "printf(\"%%d\\n\", "); break;
     }
   }
   fprintf(file, "%s(", function->name);
   translateCallParameters(function->parameters);
   fprintf(file, ")");
   if(sentence->sentenceEnd != ';') {
-    switch (fun->returnType) {
-      case STRING: case BOOLEAN: case INTEGER: fprintf(file, ")"); break;
-      case QUEUE: fprintf(file, ";\n printf(\"Queue\n\")"); break;
-      case STACK: fprintf(file, ";\n printf(\"Stack\n\")"); break;
+    if(fun->compound == QUEUE_T || fun->compound == STACK_T) {
+      switch (fun->compound) {
+        case QUEUE_T: fprintf(file, ";\n printf(\"Queue\\n\")"); break;
+        case STACK_T: fprintf(file, ";\n printf(\"Stack\\n\")"); break;
+      }
+    }else {
+      fprintf(file, ")");
     }
   }
   fprintf(file, ";\n");
@@ -336,7 +340,7 @@ void translateElementList(assignment_node * assignment) {
     switch (element->production) {
       case ELEMENT_STRING: fprintf(file, "%s, strlen(%s) + 1);\n", element->string_name, element->string_name); break;
       case ELEMENT_VARIABLE: variable = getVariable(element->string_name, funCurrent);
-                            if(variable->type == STRING)
+                            if(variable->basic == STRING_T)
                               fprintf(file, "%s, strlen(%s) + 1);\n", element->string_name, element->string_name);
                             else
                               fprintf(file, "%s, sizeof(%s));\n", element->string_name, element->string_name);
@@ -377,11 +381,16 @@ void translateSentenceEnd(sentence_node * sentence) {
     }
     variableNode * variable = getVariable(var, funCurrent);
 
-    switch (variable->type) {
-      case STRING: fprintf(file, "printf(\"%%s\\n\", %s);\n", var); break;
-      case BOOLEAN: case INTEGER: fprintf(file, "printf(\"%%d\\n\", %s);\n", var); break;
-      case QUEUE: fprintf(file, "printf(\"Queue\n\");\n"); break;
-      case STACK: fprintf(file, "printf(\"Stack\n\");\n"); break;
+    if(variable->compound == QUEUE_T || variable->compound == STACK_T) {
+      switch (variable->compound) {
+        case QUEUE_T: fprintf(file, "printf(\"Queue\\n\");\n"); break;
+        case STACK_T: fprintf(file, "printf(\"Stack\\n\");\n"); break;
+      }
+      return;
+    }
+    switch (variable->basic) {
+      case STRING_T: fprintf(file, "printf(\"%%s\\n\", %s);\n", var); break;
+      case BOOLEAN_T: case INTEGER_T: fprintf(file, "printf(\"%%d\\n\", %s);\n", var); break;
     }
   }
 }

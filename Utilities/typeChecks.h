@@ -4,12 +4,12 @@
 #define TYPE_DEFINED 2
 #define INCOMPATIBLE_DEFINITION 1
 
-typedef enum {BOOLEAN, STRING, QUEUE, STACK, INTEGER, VOID, UNKNOWN} variableType;
+typedef enum {INTEGER, BOOLEAN, STRING, QUEUE, STACK, VOID, UNKNOWN} variableType;
 
 typedef struct {
   char * name;
-  variableType type;
-  variableType elementType;
+  basicTypes basic;
+  compoundTypes compound;
 } variableNode;
 
 typedef struct variableList {
@@ -21,7 +21,8 @@ typedef struct {
   char * name;
   variableList * variables;
   variableList * arguments;
-  variableType returnType;
+  basicTypes basic;
+  compoundTypes compound;
 } functionNode;
 
 typedef struct functionList {
@@ -39,17 +40,17 @@ int renameCurrent(char * name);
 
 void addToList(functionNode * function, functionList ** list);
 
-int addReturn(variableType type);
+int addReturn(basicTypes basic, compoundTypes compound);
 
-int addParameterToFunction(char * name);
+int addParameterToFunction(char * name, basicTypes basic, compoundTypes compound);
 
-void addToDefines(char * name, variableType type);
+void addToDefines(char * name, basicTypes basic);
 
 int existsDefine(char * name);
 
-variableNode * createVariable(char * name, variableType type, variableType elementType);
+variableNode * createVariable(char * name, basicTypes basic, compoundTypes compound);
 
-int addVariable(char * name, variableType type);
+int addVariable(char * name, basicTypes basic, compoundTypes compound);
 
 int parameterExists(char * name);
 
@@ -59,9 +60,7 @@ variableNode * getVariable(char * name, functionNode * function);
 
 variableNode * getVariableFromList(char * name, variableList * list);
 
-int existsVariableTyped(char * name, variableType type);
-
-int isIterable(char * name);
+int existsVariableTyped(char * name, basicTypes basic);
 
 int existsVariable(char * name);
 

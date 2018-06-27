@@ -18,7 +18,8 @@ int functionExists(char * name) {
 
 functionNode * createFunction() {
   functionNode * function = malloc(sizeof(functionNode));
-	function->returnType = UNKNOWN;
+	function->basic = INTEGER_T;
+  function->compound = INTEGER_T;
 	function->arguments = NULL;
 	function->variables = NULL;
   current = function;
@@ -32,9 +33,6 @@ int renameCurrent(char * name) {
   current->name = malloc(strlen(name) + 1);
   strcpy(current->name, name);
 
-  if(strcmp(name, "main") == 0) {
-    current->returnType = INTEGER;
-  }
   addToList(current, &functions);
   current = createFunction();
   return 1;
@@ -47,17 +45,18 @@ void addToList(functionNode * function, functionList ** list) {
 	*list = node;
 }
 
-int addReturn(variableType type) {
+int addReturn(basicTypes basic, compoundTypes compound) {
   if(current == NULL) {
     current = createFunction();
   }
-  if(current->returnType != UNKNOWN && current->returnType != type)
+  if(current->basic != basic)
     return 0;
-  current->returnType = type;
+  current->basic = basic;
+  current->compound = compound;
   return 1;
 }
 
-int addParameterToFunction(char * name) {
+int addParameterToFunction(char * name, basicTypes basic, compoundTypes compound) {
   if(current == NULL) {
     current = createFunction();
   }
@@ -65,16 +64,16 @@ int addParameterToFunction(char * name) {
     return 0;
 
   variableList * node = malloc(sizeof(variableList));
-  node->variable = createVariable(name, UNKNOWN, UNKNOWN);
+  node->variable = createVariable(name, basic, compound);
   node->next = current->arguments;
   current->arguments = node;
 
   return 1;
 }
 
-void addToDefines(char * name, variableType type) {
+void addToDefines(char * name, basicTypes basic) {
   variableList * node = malloc(sizeof(variableList));
-  node->variable = createVariable(name, type, VOID);
+  node->variable = createVariable(name, basic, basic);
   node->next = defines;
   defines = node;
 }
@@ -88,28 +87,25 @@ int existsDefine(char * name) {
     return 1;
 }
 
-variableNode * createVariable(char * name, variableType type, variableType elementType) {
+variableNode * createVariable(char * name, basicTypes basic, compoundTypes compound) {
   variableNode * variable = malloc(sizeof(variableNode));
   variable->name = malloc(strlen(name) + 1);
 	strcpy(variable->name, name);
-	variable->type = type;
-  variable->elementType = elementType;
+	variable->basic = basic;
+  variable->compound = compound;
 
   return variable;
 }
 
-int addVariable(char * name, variableType type) {
+int addVariable(char * name, basicTypes basic, compoundTypes compound) {
   if(current == NULL) {
     current = createFunction();
   }
-  int exists = existsVariableTyped(name, type);
-  if(exists == TYPE_DEFINED) {
-    return 1;
-  } else if(exists == INCOMPATIBLE_DEFINITION)
+  if(existsVariable(name))
     return 0;
 
   variableList * node = malloc(sizeof(variableList));
-  node->variable = createVariable(name, type, UNKNOWN);
+  node->variable = createVariable(name, basic, compound);
   node->next = current->variables;
   current->variables = node;
 
@@ -157,40 +153,22 @@ variableNode * getVariableFromList(char * name, variableList * list) {
   return NULL;
 }
 
-int existsVariableTyped(char * name, variableType type) {
+int existsVariableTyped(char * name, basicTypes basic) {
   variableNode * ret = getVariableFromList(name, current->arguments);
   if(ret != NULL) {
-    if(ret->type == UNKNOWN || ret->type == type) {
-      ret->type = type;
+    if(ret->basic == basic) {
+      ret->basic = basic;
       return TYPE_DEFINED;
     }
     return INCOMPATIBLE_DEFINITION;
   }
   ret = getVariableFromList(name, current->variables);
   if(ret != NULL) {
-    if(ret->type == UNKNOWN || ret->type == type) {
-      ret->type = type;
+    if(ret->basic == basic) {
+      ret->basic = basic;
       return TYPE_DEFINED;
     }
     return INCOMPATIBLE_DEFINITION;
-  }
-  return 0;
-}
-
-int isIterable(char * name) {
-  variableNode * ret = getVariableFromList(name, current->arguments);
-  if(ret != NULL) {
-    if(ret->type == QUEUE || ret->type == STACK) {
-      return 1;
-    }
-    return 0;
-  }
-  ret = getVariableFromList(name, current->variables);
-  if(ret != NULL) {
-    if(ret->type == QUEUE || ret->type == STACK) {
-      return 1;
-    }
-    return 0;
   }
   return 0;
 }

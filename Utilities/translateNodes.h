@@ -10,7 +10,7 @@
 
 void translateProgramNode(program_node * program);
 
-void translateType(variableType type);
+void translateType(basicTypes basic, compoundTypes compound);
 
 void translateDefines(defines_node * defines);
 

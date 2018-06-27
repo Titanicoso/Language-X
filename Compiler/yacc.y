@@ -123,7 +123,7 @@ Block: /* empty */ {$$ = NULL; }
 Sentences: Sentence {$$ = new_sentences_node($1, NULL); }
 				| Sentence Sentences {$$ = new_sentences_node($1, $2); }
 
-Sentence: Declaration SentenceEnd { $$ = new_sentence_node(SENTENCE_DECLARATION, $1, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
+Sentence: Declaration SentenceEnd { $$ = new_sentence_node(SENTENCE_DECLARATION, $1, NULL, $2, NULL, NULL, NULL, NULL, NULL); }
 				| VariableOperation SentenceEnd { $$ = new_sentence_node(SENTENCE_VARIABLE, NULL, $1, $2, NULL, NULL, NULL, NULL, NULL); }
 				| For {$$ = new_sentence_node(SENTENCE_FOR, NULL, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
 				| While {$$ = new_sentence_node(SENTENCE_WHILE, NULL, NULL, NULL, NULL, $1, NULL, NULL, NULL); }

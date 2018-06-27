@@ -1,24 +1,31 @@
 <Program> ::= [<Defines>] <Functions>
 
 <Defines> ::= <Define> [<Defines>]
-<Define> ::= "#" "define" <Name> (<Integer> | <String> | <Boolean>)
+<Define> ::= "define" <Name> (<Integer> | <String> | <Boolean>)
 
 <Boolean> ::= "true" | "false"
 <Integer> ::= <Digit> {<Digit>}
 <Name> ::= <Alpha> {<AlphaNumeric>}
 <String> ::= '"' {<StringCharacters>} '"'
 
+<Type> ::= <BasicType> | <CompoundType>
+
+<BasicType> ::= "int" | "boolean" | "string"
+<CompoundType> ::= "<" <BasicType> ">" | "[" <BasicType> "]"
+
 <Functions> ::= [<Function> <Functions>] <Main>
-<Function> ::= <Name> "(" [<Arguments>] ")" "{" [<Block>] "}"
+<Function> ::= <Type> <Name> "(" [<Arguments>] ")" "{" [<Block>] "}"
 <Main> ::= "main" "(" ")" "{" [<Block>] "}"
 
 <Arguments> ::= <Parameters>
-<Parameters> ::= <Name> ["," <Parameters>]
+<Parameters> ::= <Type> <Name> ["," <Parameters>]
 
 <Block> ::= <Sentences>
 
 <Sentences> ::= <Sentence> [<Sentences>]
-<Sentence> ::= <VariableOperation> [";"] | <For> | <While> | <If> | <FunctionExecute> [";"] | <Return> [";"]
+<Sentence> ::= <VariableOperation> [";"] | <For> | <While> | <If> | <FunctionExecute> [";"] | <Return> [";"] | <Declaration> [";"]
+
+<Declaration> ::= <Type> <Name>
 
 <VariableOperation> ::= <Assignment> | <Increment> | <Decrement>
 <Assignment> ::= <Name> (("=" (<String> | <Queue> | <Stack>)) | <AssignmentOperation> <Expression>)
@@ -43,7 +50,7 @@
 <While> ::= "while" "(" <Condition> ")" "{" [<Block>] "}"
 
 <If> ::= "if" "(" <Condition> ")" "{" [<Block>] "}" [<Else>]
-<Else> ::= "else" "{" [<Block>] "}" | "elif" "(" <Condition> ")" "{" [<Block>] "}" [<Else>]
+<Else> ::= "else" "{" [<Block>] "}" | "else" "(" <Condition> ")" "{" [<Block>] "}" [<Else>]
 
 <FunctionExecute> ::= <Name> "(" [<CallArguments>] ")"
 

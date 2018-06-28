@@ -4,8 +4,6 @@
 #define TYPE_DEFINED 2
 #define INCOMPATIBLE_DEFINITION 1
 
-typedef enum {INTEGER, BOOLEAN, STRING, QUEUE, STACK, VOID, UNKNOWN} variableType;
-
 typedef struct {
   char * name;
   basicTypes basic;

@@ -53,7 +53,7 @@ new_define_node(enum productions production, char*name, int value, char* string_
 			error(INCOMPATIBLE);
 		}
 	}
-	addToDefines(name_aux, production == DEFINE_INTEGER? INTEGER : STRING);
+	addToDefines(name_aux, production == DEFINE_INTEGER? INTEGER_T : STRING_T);
 
 	return node;
 }
@@ -213,7 +213,7 @@ new_assignment_node(enum productions production, char * name,
 		node -> queue_stack = NULL;
 		node -> assignment_operation = NULL;
 		node -> expression = NULL;
-		int exists = existsVariableTyped(name_aux, STRING, NONE);
+		int exists = existsVariableTyped(name_aux, STRING_T, NONE);
 		if(exists == -1)
 			error(INCOMPATIBLE_TYPE);
 		else if(exists == 0)

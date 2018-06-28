@@ -5,6 +5,11 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include "nodes.h"
+	#include "../Utilities/typeChecks.h"
+	#include "../Utilities/translateNodes.h"
+
+	extern void yyerror(char *);
+	extern int yylex();
 %}
 
 %union {

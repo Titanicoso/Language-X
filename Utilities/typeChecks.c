@@ -49,8 +49,7 @@ int addReturn(basicTypes basic, compoundTypes compound) {
   if(current == NULL) {
     current = createFunction();
   }
-  if(current->basic != basic)
-    return 0;
+  
   current->basic = basic;
   current->compound = compound;
   return 1;

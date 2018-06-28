@@ -172,6 +172,7 @@ void translateCondition(condition_node * condition) {
 }
 
 void translateExpression(expression_node * expression) {
+  type_node * type = getExpressionType(expression);
   switch (expression->production) {
     case EXPRESSION_BOOLEAN: case EXPRESSION_INTEGER: fprintf(file, "%d", expression->boolean_number); break;
     case EXPRESSION_VARIABLE: fprintf(file, "%s", expression->name); break;
@@ -198,10 +199,11 @@ void translateOperation(expression_node * expression) {
 
 void translateExpressionFunctionCall(function_execute_node * function) {
   fprintf(file, "%s(", function->name);
-  if(getFunction(function->name) == NULL) {
+  functionNode * fun = getFunction(function->name);
+  if(fun == NULL) {
     error(FUNCTION_NOT_DEFINED);
   }
-  translateCallParameters(function->parameters);
+  translateCallParameters(function->parameters, fun);
   fprintf(file, ")");
 }
 
@@ -276,7 +278,7 @@ void translateFunctionCall(sentence_node * sentence) {
     }
   }
   fprintf(file, "%s(", function->name);
-  if(translateCallParameters(function->parameters) != getFunctionParameterCount(fun)) {
+  if(translateCallParameters(function->parameters, fun) != getFunctionParameterCount(fun)) {
     error(ERROR_ARGUMENTS);
   }
 
@@ -294,12 +296,17 @@ void translateFunctionCall(sentence_node * sentence) {
   fprintf(file, ";\n");
 }
 
-int translateCallParameters(call_parameters_node * parameters) {
+int translateCallParameters(call_parameters_node * parameters, functionNode * function) {
   int i = 0;
   call_parameters_node * next = parameters;
+  type_node * type = new_type_node(INTEGER_T, NONE);
+  variableNode * variable;
   while(next != NULL) {
+    variable = getParameterI(function, i);
+    type->basicType = variable->basic;
+    type->compoundType = variable->compound;
     call_parameter_node * parameter = next->parameter;
-    translateCallParameter(parameter);
+    translateCallParameter(parameter, type);
     next = next->next;
     if(next != NULL)
       fprintf(file, ", ");
@@ -308,10 +315,16 @@ int translateCallParameters(call_parameters_node * parameters) {
   return i;
 }
 
-void translateCallParameter(call_parameter_node * parameter) {
+void translateCallParameter(call_parameter_node * parameter, type_node * expected) {
   if(parameter->production == PARAMERER_STRING) {
+    if(expected->basicType != STRING_T || expected->compoundType != NONE) {
+      error(INCOMPATIBLE_TYPE);
+    }
     fprintf(file, "%s", parameter->string);
   } else {
+    type_node * expr = getExpressionType(parameter->expression);
+    if(expected->basicType != expr->basicType || expected->compoundType != expr->compoundType)
+      error(INCOMPATIBLE_TYPE);
     translateExpression(parameter->expression);
   }
 }
@@ -329,8 +342,11 @@ void translateVariableOperation(sentence_node * sentence) {
 }
 
 void translateAssignment(assignment_node * assignment) {
+  variableNode * variable = getVariable(assignment->name,funCurrent);
   switch (assignment->production) {
-    case ASSIGNMENT_STRING: fprintf(file, "%s = malloc(strlen(%s) + 1);\n", assignment->name, assignment->string);
+    case ASSIGNMENT_STRING: if(variable->basic != STRING_T || variable->compound != NONE) {
+                            error(INCOMPATIBLE_TYPE);
+                            }fprintf(file, "%s = malloc(strlen(%s) + 1);\n", assignment->name, assignment->string);
                             fprintf(file, "strcpy(%s, %s);\n", assignment->name, assignment->string); break;
     case ASSIGNMENT_QUEUE: case ASSIGNMENT_STACK: translateQueueStack(assignment); break;
     case ASSIGNMENT_EXPRESSION: fprintf(file, "%s %s ", assignment->name, assignment->assignment_operation);
@@ -348,9 +364,11 @@ void translateElementList(assignment_node * assignment) {
   elements_node * next = assignment->queue_stack->elements;
   variableNode * variable;
   int isQueue = assignment->production == ASSIGNMENT_QUEUE;
+  variableNode * list = getVariable(assignment->name, funCurrent);
   while(next != NULL) {
     element_node * element = next->element;
     char* aux = "";
+
     if(element->production == ELEMENT_BOOLEAN || element->production == ELEMENT_INTEGER)
       aux = "Int";
     if(isQueue) {
@@ -360,14 +378,22 @@ void translateElementList(assignment_node * assignment) {
     }
 
     switch (element->production) {
-      case ELEMENT_STRING: fprintf(file, "%s, strlen(%s) + 1);\n", element->string_name, element->string_name); break;
+      case ELEMENT_STRING: if(list->basic != STRING_T) {
+                            error(INCOMPATIBLE_TYPE);
+                          }
+                          fprintf(file, "%s, strlen(%s) + 1);\n", element->string_name, element->string_name); break;
       case ELEMENT_VARIABLE: variable = getVariable(element->string_name, funCurrent);
+                            if(list->basic != variable->basic) {
+                              error(INCOMPATIBLE_TYPE);
+                            }
                             if(variable->basic == STRING_T)
                               fprintf(file, "%s, strlen(%s) + 1);\n", element->string_name, element->string_name);
                             else
                               fprintf(file, "%s, sizeof(%s));\n", element->string_name, element->string_name);
                             break;
-      case ELEMENT_BOOLEAN: case ELEMENT_INTEGER: fprintf(file, "%d);\n", element->value); break;
+      case ELEMENT_BOOLEAN: case ELEMENT_INTEGER: if(list->basic != BOOLEAN_T && list->basic != INTEGER_T) {
+                                                    error(INCOMPATIBLE_TYPE);
+                                                    } fprintf(file, "%d);\n", element->value); break;
     }
     next = next->next;
   }
@@ -377,9 +403,16 @@ void translateReturn(sentence_node * sentence) {
   fprintf(file, "return ");
   return_node * returnNode = sentence->return_node;
   if(returnNode->production == RETURN_STRING) {
+    if(funCurrent->basic != STRING_T || funCurrent->compound != NONE)
+      error(INCOMPATIBLE_TYPE);
     fprintf(file, "%s", returnNode->string);
   } else {
+    type_node * value = getExpressionType(returnNode->expression);
+    if(funCurrent->basic != value->basicType || funCurrent->compound != value->compoundType) {
+      error(INCOMPATIBLE_TYPE);
+    }
     translateExpression(returnNode->expression);
+    free(value);
   }
   fprintf(file, ";\n");
 }
@@ -414,5 +447,83 @@ void translateSentenceEnd(sentence_node * sentence) {
       case STRING_T: fprintf(file, "printf(\"%%s\\n\", %s);\n", var); break;
       case BOOLEAN_T: case INTEGER_T: fprintf(file, "printf(\"%%d\\n\", %s);\n", var); break;
     }
+  }
+}
+
+type_node * getExpressionType(expression_node * expression) {
+  type_node * t1;
+  type_node * t2;
+  type_node * aux;
+  if(expression->production == EXPRESSION_BOOLEAN) {
+    t1 = new_type_node(BOOLEAN_T, NONE);
+    return t1;
+  }
+
+  if(expression->production == EXPRESSION_INTEGER) {
+    t1 = new_type_node(INTEGER_T, NONE);
+    return t1;
+  }
+
+  if(expression->production == EXPRESSION_VARIABLE) {
+    variableNode * var = getVariable(expression->name, funCurrent);
+    if(var == NULL)
+      error(VARIABLE_NOT_DEFINED);
+    t1 = new_type_node(var->basic, var->compound);
+    return t1;
+  }
+
+  if(expression->production == EXPRESSION_FUNCTION) {
+    functionNode * function = getFunction(expression->function_execute->name);
+    if(function == NULL)
+      error(FUNCTION_NOT_DEFINED);
+    t1 = new_type_node(function->basic, function->compound);
+    return t1;
+  }
+
+  t1 = getExpressionType(expression->expression_1);
+  t2 = getExpressionType(expression->expression_2);
+
+  if(isCompatible(t1, t2, expression->op)) {
+    aux = new_type_node(t1->basicType, t1->compoundType);
+    free(t1);
+    free(t2);
+    return aux;
+  }
+  error(NOT_VALID_OPERATION);
+  free(t1);
+  free(t2);
+  return NULL;
+}
+
+int isCompatible(type_node * t1, type_node * t2, char op) {
+  switch (op) {
+    case '+': return isCompatibleAddition(t1, t2);
+    case '-': return isCompatibleAddition(t1, t2);
+    case '/': return isCompatibleMultMod(t1, t2);
+    case '*': return isCompatibleMultMod(t1, t2);
+    case '%': return isCompatibleMultMod(t1, t2);
+  }
+  return 1;
+}
+
+int isCompatibleAddition(type_node * t1, type_node * t2) {
+  if(t1->compoundType == QUEUE_T || t2->compoundType == STACK_T) {
+    return (t2->compoundType == NONE && t2->basicType == INTEGER_T);
+  }
+
+  switch (t1->basicType) {
+    case INTEGER_T: case BOOLEAN_T: return 1;
+    case STRING_T: return 0;
+  }
+}
+
+int isCompatibleMultMod(type_node * t1, type_node * t2) {
+  if(t1->compoundType == QUEUE_T || t2->compoundType == STACK_T) {
+    return 0;
+  }
+
+  switch (t1->basicType) {
+    case INTEGER_T: case BOOLEAN_T: return 1;
+    case STRING_T: return 0;
   }
 }

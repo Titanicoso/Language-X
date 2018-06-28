@@ -49,7 +49,7 @@ int addReturn(basicTypes basic, compoundTypes compound) {
   if(current == NULL) {
     current = createFunction();
   }
-  
+
   current->basic = basic;
   current->compound = compound;
   return 1;
@@ -190,4 +190,17 @@ int getFunctionParameterCount(functionNode * function) {
     next = next->next;
   }
   return i;
+}
+
+variableNode * getParameterI(functionNode * function, int i) {
+  int j = 0;
+  variableList * next = function->arguments;
+  while(next != NULL) {
+    variableNode * variable = next->variable;
+    if(j == i)
+      return variable;
+    j++;
+    next = next->next;
+  }
+  return NULL;
 }

@@ -516,6 +516,7 @@ void error(errorType type) {
 		case VARIABLE_NOT_DEFINED: printf("Error, variable operation on not assigned variable\n"); break;
 		case ERROR_ARGUMENTS: printf("Error, wrong arguments for function\n"); break;
 		case FUNCTION_NOT_DEFINED: printf("Error, function not defined\n"); break;
+		case NOT_VALID_OPERATION: printf("Error, a non valid operation was performed\n"); break;
 	}
 	exit(2);
 }

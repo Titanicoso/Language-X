@@ -66,4 +66,6 @@ int existsVariable(char * name);
 
 int getFunctionParameterCount(functionNode * function);
 
+variableNode * getParameterI(functionNode * function, int i);
+
 #endif

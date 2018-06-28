@@ -52,9 +52,9 @@ void translateWhile(while_node * whileNode);
 
 void translateFunctionCall(sentence_node * sentence);
 
-int translateCallParameters(call_parameters_node * parameters);
+int translateCallParameters(call_parameters_node * parameters, functionNode * function);
 
-void translateCallParameter(call_parameter_node * parameter);
+void translateCallParameter(call_parameter_node * parameter, type_node * expected);
 
 void translateVariableOperation(sentence_node * sentence);
 
@@ -67,5 +67,13 @@ void translateElementList(assignment_node * assignment);
 void translateReturn(sentence_node * sentence);
 
 void translateSentenceEnd(sentence_node * sentence);
+
+type_node * getExpressionType(expression_node * expression);
+
+int isCompatible(type_node * t1, type_node * t2, char op);
+
+int isCompatibleAddition(type_node * t1, type_node * t2);
+
+int isCompatibleMultMod(type_node * t1, type_node * t2);
 
 #endif

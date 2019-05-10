@@ -1,0 +1,67 @@
+<Program> ::= [<Defines>] <Functions>
+
+<Defines> ::= <Define> [<Defines>]
+<Define> ::= "define" <Name> (<Integer> | <String> | <Boolean>)
+
+<Boolean> ::= "true" | "false"
+<Integer> ::= <Digit> {<Digit>}
+<Name> ::= <Alpha> {<AlphaNumeric>}
+<String> ::= '"' {<StringCharacters>} '"'
+
+<Type> ::= <BasicType> | <CompoundType>
+
+<BasicType> ::= "int" | "boolean" | "string"
+<CompoundType> ::= "<" <BasicType> ">" | "[" <BasicType> "]"
+
+<Functions> ::= [<Function> <Functions>] <Main>
+<Function> ::= <Type> <Name> "(" [<Arguments>] ")" "{" [<Block>] "}"
+<Main> ::= "main" "(" ")" "{" [<Block>] "}"
+
+<Arguments> ::= <Parameters>
+<Parameters> ::= <Type> <Name> ["," <Parameters>]
+
+<Block> ::= <Sentences>
+
+<Sentences> ::= <Sentence> [<Sentences>]
+<Sentence> ::= <VariableOperation> [";"] | <For> | <While> | <If> | <FunctionExecute> [";"] | <Return> [";"] | <Declaration> [";"]
+
+<Declaration> ::= <Type> <Name>
+
+<VariableOperation> ::= <Assignment> | <Increment> | <Decrement>
+<Assignment> ::= <Name> (("=" (<String> | <Queue> | <Stack>)) | <AssignmentOperation> <Expression>)
+
+<Queue> ::= "[" [<ElementList>] "]"
+<Stack> ::= "<" [<ElementList>] ">"
+<ElementList> ::= <Elements>
+<Elements> ::= <Element> ["," <Elements>]
+<Element> ::= <Boolean> | <String> | <Integer> | <Name>
+<AssignmentOperation> ::= "+=" | "=" | "-=" | "/=" | "*="
+<LogicalOperation> ::= "&&" | "||" | "!=" | "==" | ">=" | ">" | "<=" | "<"
+
+<Increment> ::= <Name> "++"
+<Decrement> ::= <Name> "--"
+
+<Expression> ::= <Boolean> | <Name> | <Integer> | <FunctionExecute> | <Expression> ("+" | "-" | "%" | "/" | "*") <Expression>
+
+<For> ::= "for" "(" ((<Assignment> ";" <Condition> ";" <VariableOperation>) | (<Name> ":" <Name>)) ")" "{" [<Block>] "}"
+
+<Condition> ::= <Expression> <LogicalOperation> <Expression> | <Expression> | "(" <Condition> ")"
+
+<While> ::= "while" "(" <Condition> ")" "{" [<Block>] "}"
+
+<If> ::= "if" "(" <Condition> ")" "{" [<Block>] "}" [<Else>]
+<Else> ::= "else" "{" [<Block>] "}" | "else" "(" <Condition> ")" "{" [<Block>] "}" [<Else>]
+
+<FunctionExecute> ::= <Name> "(" [<CallArguments>] ")"
+
+<CallArguments> ::= <CallParameters>
+<CallParameters> ::= <CallParameter> ["," <CallParameters>]
+<CallParameter> ::= <String> | <Expression>
+
+<Return> ::= "return" (<Expression> | <String>)
+
+<Alpha> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" | "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+<Digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+<AlphaNumeric> ::= <Alpha> | <Digit> | "_"
+<StringCharacters> ::= <AlphaNumeric> | <Symbol>
+<Symbol> ::= "|" | " " | "-" | "!" | "#" | "$" | "%" | "&" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | ">" | "=" | "<" | "?" | "@" | "[" | "\" | "]" | "^" | "_" | "`" | "{" | "}" | "~"

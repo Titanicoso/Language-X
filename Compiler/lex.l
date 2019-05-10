@@ -2,6 +2,7 @@
   #include <stdio.h>
   #include <stdlib.h>
   #include <string.h>
+  #include "nodes.h"
   #include "y.tab.h"
 %}
 
@@ -25,7 +26,6 @@
 "/"  {return DIVIDE;}
 "%"  {return MOD;}
 "="  {return EQUAL;}
-"#"  {return NUMERAL;}
 "!="  {return NOT_EQUAL;}
 ">="  {return GREATER_OR_EQUAL;}
 "<="  { return LESS_OR_EQUAL;}
@@ -39,30 +39,27 @@
 "while" {return WHILE;}
 "if"   {return IF;}
 "else"  {return ELSE;}
-"elif"  {return ELSE_IF;}
+
+"boolean" {return BOOLEAN_TYPE;}
+"int" {return INTEGER_TYPE;}
+"string" {return STRING_TYPE;}
 
 "main"  {return MAIN;}
 
-"true"   {yylval = 1; return BOOLEAN;}
-"false"  {yylval = 0; return BOOLEAN;}
+"true"   {yylval.value = 1; return BOOLEAN;}
+"false"  {yylval.value = 0; return BOOLEAN;}
 
--?[0-9]+						{if(yytext[0] == '-') {
-                      yylval = -1;
-                      yytext = yytext + 1;
-                    } else {
-                      yylval = 1;
-                    }
-                    yylval *= atoi(yytext);
+[0-9]+						{yylval.value = atoi(yytext);
 								    return INTEGER;}
 
-[a-zA-Z]([a-zA-Z0-9_])*		{yylval = malloc(yyleng + 1);
-                          memcpy(yylval, yytext, yyleng);
-                          yylval[yyleng] = '\0';
+[a-zA-Z]([a-zA-Z0-9_])*		{yylval.text = malloc(yyleng + 1);
+                          memcpy(yylval.text, yytext, yyleng);
+                          (yylval.text)[yyleng] = '\0';
 								          return NAME;}
 
-\"[^\"]*\"					{yylval = malloc(yyleng + 1);
-                    memcpy(yylval, yytext, yyleng);
-                    yylval[yyleng] = '\0';
+\"[^\"]*\"					{yylval.text = malloc(yyleng + 1);
+                    memcpy(yylval.text, yytext, yyleng);
+                    (yylval.text)[yyleng] = '\0';
 								    return STRING;}
 
 \/\*[^\*\/]*\*\/    ;
